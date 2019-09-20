@@ -1,6 +1,7 @@
   
 #include "token.h"
 #include <stdio.h>
+#include <string.h>
 
 extern FILE *yyin;
 extern int yylex();
@@ -10,200 +11,196 @@ char* get_TOKEN_TYPE(int t_num) {
 
 	switch(t_num) {
 	
-		case 0:
+		case TOKEN_EOF:
 			return "EOF";
 			break;
 
-		case 1:
-			return "IDENT";
-			break;
-
-		case 2:
+		case TOKEN_T_ARRAY:
 			return "ARRAY";
 			break;
 
-		case 3:
+		case TOKEN_T_AUTO:
 			return "AUTO";
 			break;
 
-		case 4:
+		case TOKEN_T_BOOLEAN:
 			return "BOOLEAN";
 			break;
 
-		case 5:
+		case TOKEN_T_CHAR:
 			return "CHAR";
 			break;
 
-		case 6:
+		case TOKEN_ELSE:
 			return "ELSE";
 			break;
 
-		case 7:
+		case TOKEN_FALSE:
 			return "FALSE";
 			break;
 
-		case 8:
+		case TOKEN_FOR:
 			return "FOR";
 			break;
 
-		case 9:
+		case TOKEN_FUNCTION:
 			return "FUNCTION";
 			break;
 
-		case 10:
+		case TOKEN_IF:
 			return "IF";
 			break;
 
-		case 11:
+		case TOKEN_T_INTEGER:
 			return "INTEGER";
 			break;
 
-		case 12:
+		case TOKEN_PRINT:
 			return "PRINT";
 			break;
 
-		case 13:
+		case TOKEN_RETURN:
 			return "RETURN";
 			break;
 
-		case 14:
+		case TOKEN_T_STRING:
 			return "STRING";
 			break;
 
-		case 15:
+		case TOKEN_TRUE:
 			return "TRUE";
 			break;
 
-		case 16:
+		case TOKEN_VOID:
 			return "VOID";
 			break;
 
-		case 17:
+		case TOKEN_WHILE:
 			return "WHILE";
 			break;
 
-		case 18:
-			return "INCREMENT";
+		case TOKEN_IDENT:
+			return "IDENT";
 			break;
 
-		case 19:
-			return "ADD";
-			break;
-
-		case 20:
-			return "COMMENT";
-			break;
-
-		case 21:
+		case TOKEN_STRING_LITERAL:
 			return "STRING_LITERAL";
 			break;
 
-		case 22:
-			return "INTEGER_LITERAL";
-			break;
-
-		case 23:
-			return "SEMICOLON";
-			break;
-
-		case 24:
+		case TOKEN_CHAR_LITERAL:
 			return "CHAR_LITERAL";
 			break;
 
-		case 25:
-			return "NOT";
+		case TOKEN_INTEGER_LITERAL:
+			return "INTEGER_LITERAL";
 			break;
 
-		case 26:
-			return "EXPONENT";
+		case TOKEN_SEMICOLON:
+			return "SEMICOLON";
 			break;
 
-		case 27:
-			return "MULT";
-			break;
-
-		case 28:
-			return "DIV";
-			break;
-
-		case 29:
-			return "MOD";
-			break;
-
-		case 30:
-			return "GT";
-			break;
-
-		case 31:
-			return "GE";
-			break;
-
-		case 32:
-			return "GE";
-			break;
-
-		case 33:
-			return "LE";
-			break;
-
-		case 34:
-			return "EQ";
-			break;
-
-		case 35:
-			return "NEQ";
-			break;
-
-		case 36:
-			return "AND";
-			break;
-
-		case 37:
-			return "OR";
-			break;
-
-		case 38:
-			return "ASSIGN";
-			break;
-
-		case 39:
-			return "DECREMENT";
-			break;
-
-		case 40:
-			return "MINUS";
-			break;
-
-		case 41:
+		case TOKEN_COLON:
 			return "COLON";
 			break;
 
-		case 42:
+		case TOKEN_COMMA:
+			return "COMMA";
+			break;
+
+		case TOKEN_LP:
 			return "LP";
 			break;
 
-		case 43:
+		case TOKEN_RP:
 			return "RP";
 			break;
 
-		case 44:
+		case TOKEN_LB:
 			return "LB";
 			break;
 
-		case 45:
+		case TOKEN_RB:
 			return "RB";
 			break;
 
-		case 46:
+		case TOKEN_LCB:
 			return "LCB";
 			break;
 
-		case 47:
+		case TOKEN_RCB:
 			return "RCB";
 			break;
 
-		case 48:
-			return "COMMA";
+		case TOKEN_INCREMENT:
+			return "INCREMENT";
+			break;
+
+		case TOKEN_DECREMENT:
+			return "DECREMENT";
+			break;
+
+		case TOKEN_NOT:
+			return "NOT";
+			break;
+
+		case TOKEN_EXPONENT:
+			return "EXPONENT";
+			break;
+
+		case TOKEN_MULT:
+			return "MULT";
+			break;
+
+		case TOKEN_DIV:
+			return "DIV";
+			break;
+
+		case TOKEN_MOD:
+			return "MOD";
+			break;
+
+		case TOKEN_ADD:
+			return "ADD";
+			break;
+
+		case TOKEN_MINUS:
+			return "MINUS";
+			break;
+
+		case TOKEN_GT:
+			return "GT";
+			break;
+
+		case TOKEN_GE:
+			return "GE";
+			break;
+
+		case TOKEN_LT:
+			return "LT";
+			break;
+
+		case TOKEN_LE:
+			return "LE";
+			break;
+
+		case TOKEN_EQ:
+			return "EQ";
+			break;
+
+		case TOKEN_NEQ:
+			return "NEQ";
+			break;
+
+		case TOKEN_AND:
+			return "AND";
+			break;
+
+		case TOKEN_OR:
+			return "OR";
+			break;
+
+		case TOKEN_ASSIGN:
+			return "ASSIGN";
 			break;
 
 		default:
@@ -233,7 +230,11 @@ int main(int argc, char* argv[])
 		while(1) {
 			token_t t = yylex();
 			if(t==TOKEN_EOF) break;
-			printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
+			if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
+				printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
+			} else {
+				printf("%s\n", get_TOKEN_TYPE(t));
+			}
 		}
 	} else {
 		printf("No -scan flag passed\n");
