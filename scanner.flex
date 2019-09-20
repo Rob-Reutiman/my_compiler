@@ -32,10 +32,10 @@ true  	   { return TOKEN_TRUE; 	 }
 void  	   { return TOKEN_VOID; 	 }
 while      { return TOKEN_WHILE;     }
 
-(_|{LETTER})({LETTER}|{DIGIT}|_)*  { return ident_check(yytext);   }
-\"[^\"]*\" 						  { return string_check(yytext);  }
-\'(\.|.)\'     					  { return char_check(yytext);    }
-{DIGIT}+  						  { return int_check(yytext);     }
+(_|{LETTER})({LETTER}|{DIGIT}|_)*  	{ return ident_check(yytext);   }
+\"(([^\"\\\n]|\\\\|\\[\"\']|\\)*)\"   { return string_check(yytext);  }
+\'(\.|.)\'     					    { return char_check(yytext);    }
+{DIGIT}+  						    { return int_check(yytext);     }
 
 \; 		{ return TOKEN_SEMICOLON; }
 \: 		{ return TOKEN_COLON;     }
@@ -76,14 +76,41 @@ while      { return TOKEN_WHILE;     }
 %%
 int ident_check(char* yytext) {
 	int length = 0;
+
+	while(*yytext) {
+		length++;
+		*yytext++;
+	}
+
+	if(length < 255 ) {
+		return TOKEN_IDENT;
+	} else {
+		return TOKEN_IDENT_ERROR;
+	}
 	
-	return TOKEN_IDENT;	
 };
 
 int string_check(char* yytext) {
 
-	q_strip(yytext);
-	return TOKEN_STRING_LITERAL;
+//	char* new_str = "";
+  //  strcpy(new_str, yytext);
+
+	int length = 0;
+
+	while(*yytext) {
+		if(*yytext == '\\') {
+			*yytext++;
+			continue;
+		}
+		length++;
+		*yytext++;
+	}  
+
+	if(length < 255 ) {
+		return TOKEN_STRING_LITERAL;
+	} else {
+		return TOKEN_STRING_ERROR;
+	}
 };
 
 int char_check(char* yytext) {
@@ -105,9 +132,15 @@ int char_check(char* yytext) {
 
 };
 
-int int_check(char* yytext) { 
+int int_check(char* yytext) {
 
-	return TOKEN_INTEGER_LITERAL;
+	int64_t max = 9223372036854775807;
+
+	if(atoi(yytext) <= max && strlen(yytext) <= 19) {
+		return TOKEN_INTEGER_LITERAL;
+	} else {
+		return TOKEN_INTEGER_ERROR;
+	}
 };
 
 void q_strip(char* yytext) {
@@ -118,15 +151,9 @@ void q_strip(char* yytext) {
         *c='\0';
     } 
 
-//	while(*prev != '\'' && *c != '\"') {
-		
- //   if(*temp == '\'' || '\"') {    /* eliminates quotes from front */
-//		 char* temp = *prev;
-//		 *c
-			
-  //  } 
+//	*yytext=0;
+//	yytext++;
 
-    
 };
 
 int yywrap() { return 1; }

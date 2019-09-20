@@ -1,0 +1,10 @@
+// basic data types
+
+boolean: x = true;
+
+auto: x = true;
+
+string "sandy";
+
+// this is valid
+

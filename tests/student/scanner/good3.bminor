@@ -1,0 +1,7 @@
+//test some logic
+
+while(x!=y) {
+	if(a=b) {
+		x++;
+	}
+}

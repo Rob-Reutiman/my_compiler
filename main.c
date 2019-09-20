@@ -158,15 +158,23 @@ char* get_TOKEN_TYPE(int t_num) {
 			return "ASSIGN";
 
 		case TOKEN_IDENT_ERROR:
-			fprintf(stderr, "scan error: invalid identifer: %s\n", yytext);
+			fprintf(stderr, "scan error: invalid identifier %s - max length is 256 characters\n", yytext);
 			exit(1);
 
 		case TOKEN_STRING_ERROR:
-			fprintf(stderr, "scan error: invalid string: %s\n", yytext);
+			fprintf(stderr, "scan error: invalid string %s - max length is 255 characters\n", yytext);
 			exit(1);
 
 		case TOKEN_CHAR_ERROR:
 			fprintf(stderr, "scan error: invalid char: %s\n", yytext);
+			exit(1);
+
+		case TOKEN_INTEGER_ERROR:
+			fprintf(stderr, "scan error: invalid integer %s - must fit in 64 bits\n", yytext);
+			exit(1);
+
+		case TOKEN_COMMENT_ERROR:
+			fprintf(stderr, "scan error: invalid comment syntax %s\n", yytext);
 			exit(1);
 
 		case TOKEN_SCAN_ERROR:
