@@ -50,7 +50,10 @@ typedef enum {
  	 TOKEN_AND,
  	 TOKEN_OR,
  	 TOKEN_ASSIGN,
-     TOKEN_ERROR
+	 TOKEN_IDENT_ERROR,
+	 TOKEN_STRING_ERROR,
+	 TOKEN_CHAR_ERROR,
+     TOKEN_SCAN_ERROR
 } token_t;
 
 #endif
