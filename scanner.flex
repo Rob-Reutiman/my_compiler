@@ -5,6 +5,8 @@ int string_check(char** yytext);
 int char_check(char** yytext);
 int int_check(char* yytext);
 void q_strip(char** yytext);
+void escape_fix(char** yytext);
+char escp_pick(char c);
 %}
 
 DIGIT  [0-9]
@@ -33,7 +35,7 @@ void  	   { return TOKEN_VOID; 	 }
 while      { return TOKEN_WHILE;     }
 
 (_|{LETTER})({LETTER}|{DIGIT}|_)*  	{ return ident_check(yytext);   }
-\"(([^\"\\\n]|\\\\|\\[^\s])*)\"     { return string_check(&yytext);  }   
+\"(([^\"\\\n]|\\[^\s])*)\"     { return string_check(&yytext);  }   
 \'(\\[^\s]|[^\\\n])\'  			    { return char_check(&yytext);    }
 {DIGIT}+  						    { return int_check(yytext);     }
 
@@ -75,14 +77,8 @@ while      { return TOKEN_WHILE;     }
 .     { return TOKEN_SCAN_ERROR;  }
 %%
 int ident_check(char* yytext) {
-	int length = 0;
 
-	while(*yytext) {
-		length++;
-		*yytext++;
-	}
-
-	if(length < 255 ) {
+	if(strlen(yytext) < 255 ) {
 		return TOKEN_IDENT;
 	} else {
 		return TOKEN_IDENT_ERROR;
@@ -94,19 +90,9 @@ int string_check(char** yytext) {
 
 	q_strip(yytext);
 
-	char* text = *yytext;
-	int length = 0;
+	escape_fix(yytext); 	
 
-	while(*text) {
-		if(*text == '\\') {
-			text++;
-			continue;
-		}
-		length++;
-		text++;
-	}  
-
-	if(length < 255 ) {
+	if(strlen(*yytext) < 255 ) {
 		return TOKEN_STRING_LITERAL;
 	} else {
 		return TOKEN_STRING_ERROR;
@@ -116,20 +102,13 @@ int string_check(char** yytext) {
 int char_check(char** yytext) {
 	q_strip(yytext);
 
-	if(**yytext == '\\') {
-		if(strlen(*yytext) == 2) {
-			return TOKEN_CHAR_LITERAL;
-		} else {
-			return TOKEN_CHAR_ERROR;
-		}
-	} else {
-		if(strlen(*yytext) == 1) {
-		return TOKEN_CHAR_LITERAL; 
-		} else {
-			return TOKEN_CHAR_ERROR;
-		}
-	}
+	escape_fix(yytext);
 
+	if(strlen(*yytext) == 1 || strlen(*yytext) == 0) {
+		return TOKEN_CHAR_LITERAL; 
+	} else {
+			return TOKEN_CHAR_ERROR;
+	}
 };
 
 int int_check(char* yytext) {
@@ -152,6 +131,62 @@ void q_strip(char** yytext) {
     } 
 
 	(*yytext)++;
+
+};
+
+void escape_fix(char** yytext) {
+
+	int jumped = 0;
+	int prev_esc = 0;
+	char* c = *yytext;
+
+	while(*c) {
+
+		if(*c == '\\') {
+			jumped++;
+			c++;
+			*c = escp_pick(*c);
+		}
+
+		if(jumped) {
+			*(c-jumped) = *c;
+		}
+
+		c++;
+	}
+
+};
+
+char escp_pick(char c) {
+
+	switch(c) {
+		case 'a': return '\a';
+			
+		case 'b': return '\b';
+
+		case 'e': return '\e';
+
+		case 'f': return '\f';
+
+		case 'n': return '\n';
+
+		case 'r': return '\r';
+
+		case 't': return '\t';
+
+		case 'v': return '\v';
+
+		case '\\': return '\\';
+
+		case '\'': return '\'';
+
+		case '\"': return '\"';
+
+		case '?': return '\?';
+
+		default: return c;
+
+	}
 
 };
 
