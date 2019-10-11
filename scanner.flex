@@ -1,10 +1,10 @@
 %{
 #include "token.h"
 int ident_check(char* yytext);
-int string_check(char* yytext);
-int char_check(char* yytext);
+int string_check(char** yytext);
+int char_check(char** yytext);
 int int_check(char* yytext);
-void q_strip(char* yytext);
+void q_strip(char** yytext);
 %}
 
 DIGIT  [0-9]
@@ -33,8 +33,8 @@ void  	   { return TOKEN_VOID; 	 }
 while      { return TOKEN_WHILE;     }
 
 (_|{LETTER})({LETTER}|{DIGIT}|_)*  	{ return ident_check(yytext);   }
-\"(([^\"\\\n]|\\\\|\\[\"\']|\\)*)\"   { return string_check(yytext);  }
-\'(\.|.)\'     					    { return char_check(yytext);    }
+\"(([^\"\\\n]|\\\\|\\[^\s])*)\"     { return string_check(&yytext);  }   
+\'(\\[^\s]|[^\\\n])\'  			    { return char_check(&yytext);    }
 {DIGIT}+  						    { return int_check(yytext);     }
 
 \; 		{ return TOKEN_SEMICOLON; }
@@ -90,20 +90,20 @@ int ident_check(char* yytext) {
 	
 };
 
-int string_check(char* yytext) {
+int string_check(char** yytext) {
 
-//	char* new_str = "";
-  //  strcpy(new_str, yytext);
+	q_strip(yytext);
 
+	char* text = *yytext;
 	int length = 0;
 
-	while(*yytext) {
-		if(*yytext == '\\') {
-			*yytext++;
+	while(*text) {
+		if(*text == '\\') {
+			text++;
 			continue;
 		}
 		length++;
-		*yytext++;
+		text++;
 	}  
 
 	if(length < 255 ) {
@@ -113,17 +113,17 @@ int string_check(char* yytext) {
 	}
 };
 
-int char_check(char* yytext) {
+int char_check(char** yytext) {
 	q_strip(yytext);
 
-	if(*yytext == '\\') {
-		if(strlen(yytext) == 2) {
+	if(**yytext == '\\') {
+		if(strlen(*yytext) == 2) {
 			return TOKEN_CHAR_LITERAL;
 		} else {
 			return TOKEN_CHAR_ERROR;
 		}
 	} else {
-		if(strlen(yytext) == 1) {
+		if(strlen(*yytext) == 1) {
 		return TOKEN_CHAR_LITERAL; 
 		} else {
 			return TOKEN_CHAR_ERROR;
@@ -143,16 +143,15 @@ int int_check(char* yytext) {
 	}
 };
 
-void q_strip(char* yytext) {
+void q_strip(char** yytext) {
 
-    char* c = yytext+strlen(yytext)-1;
+    char* c = *yytext+strlen(*yytext)-1;
 
     if(*c == '\'' || '\"') {    /* eliminates quotes from end */
         *c='\0';
     } 
 
-//	*yytext=0;
-//	yytext++;
+	(*yytext)++;
 
 };
 

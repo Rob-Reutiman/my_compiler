@@ -182,39 +182,47 @@ char* get_TOKEN_TYPE(int t_num) {
 			exit(1);
 
 		default:
-			fprintf(stderr, "scanner error: unknown token %s\n", yytext);
+			fprintf(stderr, "scan error: unknown token %s\n", yytext);
 			exit(1);
 	}
 }
 
-int main(int argc, char* argv[])
-{
-	int argind=1;
+int main(int argc, char* argv[]) {
 	int SCAN = 0;
+	int PARSE = 0;
 
-	while (argind < argc && argv[argind][0] == '-') {
-		if(!strcmp(argv[argind++], "-scan"))
-			SCAN = 1;
+	if(!strcmp(argv[1], "-scan")) {
+		SCAN = 1;
 	}
 
-	if(SCAN) {
-		yyin = fopen(argv[argind],"r");
-		if(!yyin) {
-			printf("could not open %s\n", argv[argind]);
-			return 1;
-		}
+	if(!strcmp(argv[1], "-parse")) {
+		PARSE = 1;
+	}
 
-		while(1) {
-			token_t t = yylex();
-			if(t==TOKEN_EOF) break;
-			if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
-				printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
-			} else {
-				printf("%s\n", get_TOKEN_TYPE(t));
+	if(argc == 3) {
+		if(SCAN || PARSE) {
+			yyin = fopen(argv[2],"r");
+			if(!yyin) {
+				printf("could not open %s\n", argv[2]);
+				return 1;
+			}
+
+			while(1) {
+				token_t t = yylex();
+				if(t==TOKEN_EOF) break;
+				if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
+					printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
+				} else {
+					printf("%s\n", get_TOKEN_TYPE(t));
+				}
 			}
 		}
+
+		if(PARSE) {
+
+		}
 	} else {
-		printf("No -scan flag passed\n");
+		printf("Usage: bminor -[flag] [sourcefile.bminor]\n");
 		return 1;
 	}
 
