@@ -137,7 +137,6 @@ void q_strip(char** yytext) {
 void escape_fix(char** yytext) {
 
 	int jumped = 0;
-	int prev_esc = 0;
 	char* c = *yytext;
 
 	while(*c) {

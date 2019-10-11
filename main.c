@@ -6,6 +6,7 @@
 
 extern FILE *yyin;
 extern int yylex();
+extern int yyparse();
 extern char *yytext;
 
 char* get_TOKEN_TYPE(int t_num) {
@@ -200,7 +201,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(argc == 3) {
-		if(SCAN || PARSE) {
+		if(SCAN) {
 			yyin = fopen(argv[2],"r");
 			if(!yyin) {
 				printf("could not open %s\n", argv[2]);
@@ -219,7 +220,14 @@ int main(int argc, char* argv[]) {
 		}
 
 		if(PARSE) {
-
+			if(yyparse()==0) {
+				printf("parse successful");
+				return 0;
+			} else {
+				printf("parse failed!\n");
+				return 1;
+			}
+			
 		}
 	} else {
 		printf("Usage: bminor -[flag] [sourcefile.bminor]\n");
