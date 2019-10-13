@@ -8,8 +8,59 @@ extern FILE *yyin;
 extern int yylex();
 extern int yyparse();
 extern char *yytext;
+char* get_TOKEN_TYPE(token_t t_num);
 
-char* get_TOKEN_TYPE(int t_num) {
+
+int main(int argc, char* argv[]) {
+	int SCAN = 0;
+	int PARSE = 0;
+
+	if(!strcmp(argv[1], "-scan")) {
+		SCAN = 1;
+	}
+
+	if(!strcmp(argv[1], "-parse")) {
+		PARSE = 1;
+	}
+
+	if(argc == 3) {
+		if(SCAN) {
+			yyin = fopen(argv[2],"r");
+			if(!yyin) {
+				printf("could not open %s\n", argv[2]);
+				return 1;
+			}
+
+			while(1) {
+				token_t t = yylex();
+				if(t==TOKEN_EOF) break;
+				if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
+					printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
+				} else {
+					printf("%s\n", get_TOKEN_TYPE(t));
+				}
+			}
+		}
+
+		if(PARSE) {
+			if(yyparse()==0) {
+				printf("parse successful");
+				return 0;
+			} else {
+				printf("parse failed!\n");
+				return 1;
+			}
+			
+		} 
+	} else {
+		printf("Usage: bminor -[flag] [sourcefile.bminor]\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+char* get_TOKEN_TYPE(token_t t_num) {
 
 	switch(t_num) {
 	
@@ -186,53 +237,4 @@ char* get_TOKEN_TYPE(int t_num) {
 			fprintf(stderr, "scan error: unknown token %s\n", yytext);
 			exit(1);
 	}
-}
-
-int main(int argc, char* argv[]) {
-	int SCAN = 0;
-	int PARSE = 0;
-
-	if(!strcmp(argv[1], "-scan")) {
-		SCAN = 1;
-	}
-
-	if(!strcmp(argv[1], "-parse")) {
-		PARSE = 1;
-	}
-
-	if(argc == 3) {
-		if(SCAN) {
-			yyin = fopen(argv[2],"r");
-			if(!yyin) {
-				printf("could not open %s\n", argv[2]);
-				return 1;
-			}
-
-			while(1) {
-				token_t t = yylex();
-				if(t==TOKEN_EOF) break;
-				if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
-					printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
-				} else {
-					printf("%s\n", get_TOKEN_TYPE(t));
-				}
-			}
-		}
-
-		if(PARSE) {
-			if(yyparse()==0) {
-				printf("parse successful");
-				return 0;
-			} else {
-				printf("parse failed!\n");
-				return 1;
-			}
-			
-		}
-	} else {
-		printf("Usage: bminor -[flag] [sourcefile.bminor]\n");
-		return 1;
-	}
-
-	return 0;
 }

@@ -138,6 +138,8 @@ void escape_fix(char** yytext) {
 
 	int jumped = 0;
 	char* c = *yytext;
+	char* b = *yytext;
+	int len = strlen(c);
 
 	while(*c) {
 
@@ -153,6 +155,11 @@ void escape_fix(char** yytext) {
 
 		c++;
 	}
+
+	b+=len-jumped;
+	while(*b) {
+		*b = '\0';
+	}	
 
 };
 
@@ -182,6 +189,8 @@ char escp_pick(char c) {
 		case '\"': return '\"';
 
 		case '?': return '\?';
+
+		case '0': return '\0';
 
 		default: return c;
 
