@@ -1,0 +1,8 @@
+// no function within functions
+
+main: function void() = {
+	wrong: function int() = {
+		5+5;
+	}
+}
+		

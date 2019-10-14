@@ -90,23 +90,98 @@ extern int yyerror( char *str );
 
 /* Here is the grammar: program is the start symbol. */
 
-decl : expr TOKEN_SEMICOLON { return 0; }
+program : stmts 	{ return 0; }
+	| 				{ return 0; }
 	;
 
+stmts 	:  stmt stmts
+	| stmt
+	;
+
+stmt: close_if
+	| open_if
+	;
+
+/*stmt 	: //TOKEN_IF TOKEN_LP expr TOKEN_RP stmt
+//	| TOKEN_IF TOKEN_LP expr TOKEN_RP stmt TOKEN_ELSE stmt
+	  if_s
+	| TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
+	| TOKEN_FOR TOKEN_LP for_args TOKEN_RP stmt
+	| expr TOKEN_SEMICOLON
+	| TOKEN_RETURN expr TOKEN_SEMICOLON
+	| TOKEN_RETURN TOKEN_SEMICOLON
+	| TOKEN_LCB stmts TOKEN_RCB
+	| TOKEN_PRINT TOKEN_SEMICOLON;
+	| TOKEN_PRINT expr arg_list TOKEN_SEMICOLON
+	| decl
+	;*/
+
+non_if_stmt:  TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
+	| TOKEN_FOR TOKEN_LP for_args TOKEN_RP stmt
+	| expr TOKEN_SEMICOLON
+	| TOKEN_RETURN expr TOKEN_SEMICOLON
+	| TOKEN_RETURN TOKEN_SEMICOLON
+	| TOKEN_LCB stmts TOKEN_RCB
+	| TOKEN_LCB expr arg_list TOKEN_RCB
+	| TOKEN_PRINT TOKEN_SEMICOLON;
+	| TOKEN_PRINT expr arg_list TOKEN_SEMICOLON
+	| decl
 
 
-expr	: expr TOKEN_ADD term
-	| expr TOKEN_MINUS term
+open_if : TOKEN_IF TOKEN_LP expr TOKEN_RP stmt
+	|  TOKEN_IF TOKEN_LP expr TOKEN_RP close_if TOKEN_ELSE open_if
+	;
+
+close_if: non_if_stmt
+	| TOKEN_IF TOKEN_LP expr TOKEN_RP close_if TOKEN_ELSE close_if
+	;
+	
+
+for_args: opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLON opt_args
+	;
+
+opt_args: expr
+	| 
+	;
+
+decl 	: param TOKEN_ASSIGN non_if_stmt 
+	| 	param TOKEN_SEMICOLON
+	;
+
+param_list 	: TOKEN_COMMA param param_list
+	| 
+	;
+
+param 	: TOKEN_IDENT TOKEN_COLON type 
+	;
+
+expr 	: expr TOKEN_GT subex
+	| expr TOKEN_GE subex
+	| expr TOKEN_LT subex
+	| expr TOKEN_LE subex
+	| expr TOKEN_EQ subex
+	| expr TOKEN_NEQ subex
+	| expr TOKEN_AND subex
+	| expr TOKEN_OR subex
+	| expr TOKEN_ASSIGN subex
+	| expr TOKEN_LB expr TOKEN_RB
+	| subex
+	;
+
+subex	: subex TOKEN_ADD term
+	| subex TOKEN_MINUS term
 	| term
 	;
 
-term	: term TOKEN_MULT value
-	| term TOKEN_DIV value
-	| term TOKEN_MOD value
+term	: term TOKEN_MULT factor
+	| term TOKEN_DIV factor
+	| term TOKEN_MOD factor
 	| factor
 	;
 
 factor  : factor TOKEN_EXPONENT value
+	| factor TOKEN_INCREMENT 
+	| factor TOKEN_DECREMENT
 	| value
 	;
 
@@ -117,6 +192,26 @@ value	: TOKEN_MINUS value
 	| TOKEN_CHAR_LITERAL
 	| TOKEN_TRUE
 	| TOKEN_FALSE
+	| TOKEN_IDENT
+	| TOKEN_NOT value
+	| TOKEN_IDENT TOKEN_LP expr arg_list TOKEN_RP
+	| TOKEN_IDENT TOKEN_LP TOKEN_RP
+	;
+
+arg_list : TOKEN_COMMA expr arg_list
+	| 
+	;
+
+type 	: TOKEN_T_ARRAY TOKEN_LB TOKEN_RB type
+	| TOKEN_T_ARRAY TOKEN_LB TOKEN_INTEGER_LITERAL TOKEN_RB type
+	| TOKEN_T_AUTO
+	| TOKEN_T_BOOLEAN
+	| TOKEN_T_CHAR
+	| TOKEN_T_INTEGER
+	| TOKEN_T_STRING
+	| TOKEN_VOID
+	| TOKEN_FUNCTION type TOKEN_LP param param_list TOKEN_RP
+	| TOKEN_FUNCTION type TOKEN_LP TOKEN_RP
 	;
 
 %%

@@ -1,5 +1,5 @@
 %{
-#include "token.h"
+#include "parser.h"
 int ident_check(char* yytext);
 int string_check(char** yytext);
 int char_check(char** yytext);
@@ -53,8 +53,6 @@ while      { return TOKEN_WHILE;     }
 (\+){2}    { return TOKEN_INCREMENT; }
 (\-){2}    { return TOKEN_DECREMENT; }
 
-\![^=]    { return TOKEN_NOT; }
-
 \^    { return TOKEN_EXPONENT; }
 \*    { return TOKEN_MULT;     }
 \/    { return TOKEN_DIV;      }
@@ -69,6 +67,8 @@ while      { return TOKEN_WHILE;     }
 \<\=  { return TOKEN_LE;  }
 \=\=  { return TOKEN_EQ;  }
 \!\=  { return TOKEN_NEQ; }
+
+\!    { return TOKEN_NOT; }
 
 \&\&  { return TOKEN_AND;    }
 \|\|  { return TOKEN_OR;     }

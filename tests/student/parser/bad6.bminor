@@ -1,0 +1,5 @@
+// incorrect usage
+
+while(i=0; i < 5; i++) {
+	sum = sum + 1;
+} 

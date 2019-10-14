@@ -24,13 +24,15 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(argc == 3) {
-		if(SCAN) {
-			yyin = fopen(argv[2],"r");
-			if(!yyin) {
-				printf("could not open %s\n", argv[2]);
-				return 1;
-			}
 
+		yyin = fopen(argv[2],"r");
+		if(!yyin) {
+			printf("could not open %s\n", argv[2]);
+			return 1;
+		}
+
+
+		if(SCAN) {
 			while(1) {
 				token_t t = yylex();
 				if(t==TOKEN_EOF) break;
@@ -43,13 +45,15 @@ int main(int argc, char* argv[]) {
 		}
 
 		if(PARSE) {
-			if(yyparse()==0) {
-				printf("parse successful");
+			if(yyparse()==0) { 
+				printf("parse successful\n");
 				return 0;
-			} else {
+			} 
+			
+			else {
 				printf("parse failed!\n");
 				return 1;
-			}
+			}  
 			
 		} 
 	} else {

@@ -1,0 +1,5 @@
+// improper usage of while and if
+
+if(while(x>10)) {
+	x--;
+}

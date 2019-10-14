@@ -1,0 +1,7 @@
+a: function integer (s:integer);
+
+if(x == 5) {
+	return a(q);
+} else {
+	return a(r);
+}

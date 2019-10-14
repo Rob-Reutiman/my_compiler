@@ -1,0 +1,9 @@
+
+
+erase: function array [] integer (a: array [] integer) = {
+	for(i=0; i < 10; i++) {
+		if(clean == true) {
+			a[i] == 0;
+		}
+	}
+}

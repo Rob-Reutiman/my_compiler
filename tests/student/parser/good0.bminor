@@ -1,0 +1,10 @@
+
+
+sum: function integer (b:integer, c:integer) = {
+
+	s: integer = 0;
+
+	s = b + c;
+	
+	return s; 
+}

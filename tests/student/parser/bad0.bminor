@@ -1,0 +1,8 @@
+
+// no semicolon
+
+main:function void() {
+
+	missing + semicolon
+
+}

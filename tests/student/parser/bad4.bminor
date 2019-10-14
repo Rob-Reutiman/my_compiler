@@ -1,0 +1,3 @@
+// invalid array decl
+
+a: array [5] integer = {};
