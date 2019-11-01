@@ -59,25 +59,36 @@ for use by scanner.c.
 %token	 TOKEN_COMMENT_ERROR
 %token   TOKEN_SCAN_ERROR
 
+%union { 
+	struct decl *decl;
+	struct stmt *stmt;
+	struct expr *expr;
+	struct type *type;
+	struct param_list *param_list;
+//	struct symbol *symbol; 
+};
+
+%type <decl> decl
+%type <stmt> stmts stmt non_if_stmt open_if restricted
+%type <expr> expr expr_or expr_and expr_comp expr_add expr_mult expr_expo expr_not expr_postfix expr_groups value arg_list ident opt_args 
+%type <type> type
+%type <param_list> param_list param
+// %type <symbol>
+
 %{
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+//#include "type.h"
+#include "decl.h"
 
-/*
-YYSTYPE is the lexical value returned by each rule in a bison grammar.
-By default, it is an integer. In this example, we are returning a pointer to an expression.
-*/
-
-//#define YYSTYPE struct expr *
 
 extern char *yytext;
 extern int yylex();
 extern int yyerror( char *str );
-
-//struct expr * parser_result = 0;
-//int parser_result = 0;
 
 %}
 
@@ -89,133 +100,171 @@ program : stmts 	{ return 0; }
 	| 				{ return 0; }
 	;
 
+// stmts
+
 stmts 	:  stmt stmts
 	| stmt
 	;
 
-stmt: close_if
-	| open_if
+stmt: open_if
+	| restricted
 	;
 
-/*stmt 	: //TOKEN_IF TOKEN_LP expr TOKEN_RP stmt
-//	| TOKEN_IF TOKEN_LP expr TOKEN_RP stmt TOKEN_ELSE stmt
-	  if_s
-	| TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
-	| TOKEN_FOR TOKEN_LP for_args TOKEN_RP stmt
-	| expr TOKEN_SEMICOLON
-	| TOKEN_RETURN expr TOKEN_SEMICOLON
-	| TOKEN_RETURN TOKEN_SEMICOLON
-	| TOKEN_LCB stmts TOKEN_RCB
-	| TOKEN_PRINT TOKEN_SEMICOLON;
-	| TOKEN_PRINT arg_list TOKEN_SEMICOLON
-	| decl
-	;*/
-
-non_if_stmt:  TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
-	| TOKEN_FOR TOKEN_LP for_args TOKEN_RP stmt
-	| expr TOKEN_SEMICOLON
-	| TOKEN_RETURN expr TOKEN_SEMICOLON
-	| TOKEN_RETURN TOKEN_SEMICOLON
-	| TOKEN_LCB stmts TOKEN_RCB
-	| TOKEN_LCB arg_list TOKEN_RCB
-	| TOKEN_PRINT TOKEN_SEMICOLON;
-	| TOKEN_PRINT arg_list TOKEN_SEMICOLON
-	| decl
-
+// if else problem handlers
 
 open_if : TOKEN_IF TOKEN_LP expr TOKEN_RP stmt
-	|  TOKEN_IF TOKEN_LP expr TOKEN_RP close_if TOKEN_ELSE open_if
+			{ $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, $5, NULL, NULL); }
+	|  TOKEN_IF TOKEN_LP expr TOKEN_RP restricted TOKEN_ELSE open_if
+			{ $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, $5, $7, NULL); }
 	;
 
-close_if: non_if_stmt
-	| TOKEN_IF TOKEN_LP expr TOKEN_RP close_if TOKEN_ELSE close_if
+restricted: non_if_stmt
+	| TOKEN_IF TOKEN_LP expr TOKEN_RP restricted TOKEN_ELSE restricted
+			{ $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, $5, $7, NULL); }
+	;
+
+// non_if_statements
+
+non_if_stmt:  TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
+			{ $$ = NULL; }
+	| TOKEN_FOR TOKEN_LP opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLON opt_args TOKEN_RP stmt
+			{ $$ = stmt_create(STMT_FOR, NULL, $3, $5, $7, $9, NULL, NULL); }
+	| expr TOKEN_SEMICOLON
+			{ $$ = stmt_create(STMT_EXPR, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
+	| TOKEN_RETURN expr TOKEN_SEMICOLON
+			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, $2, NULL, NULL, NULL); }
+	| TOKEN_RETURN TOKEN_SEMICOLON
+			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+	| TOKEN_LCB stmts TOKEN_RCB
+			{ $$ = $2; }
+	| TOKEN_LCB arg_list TOKEN_RCB
+			{ $$ = $2; }
+	| TOKEN_PRINT TOKEN_SEMICOLON
+			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+	| TOKEN_PRINT arg_list TOKEN_SEMICOLON
+			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, $2, NULL, NULL, NULL); }
+	| decl
+			{ $$ = stmt_create(STMT_DECL, $1, NULL, NULL, NULL, NULL, NULL, NULL); }
 	;
 	
 // for loop args
 
-for_args: opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLON opt_args
-	;
-
 opt_args: expr
-	| 
+	| { $$ = NULL; } 		
 	;
 
 // decl
 
 decl 	: param TOKEN_ASSIGN non_if_stmt 
+			{ $$ = decl_create($1->name, $1->type, NULL, $3, NULL); }
 	| 	param TOKEN_SEMICOLON
+			{ $$ = decl_create($1->name, $1->type, NULL, NULL, NULL); }
 	;
 
 // param_list
 
 param_list 	: param
 	| param TOKEN_COMMA param_list
+			{ $1->next = $3; }
 	;
 
-param 	: TOKEN_IDENT TOKEN_COLON type 
+param 	:  ident TOKEN_COLON type 
+			{ $$ = param_list_create(strdup($1->name), $3, NULL); }
 	;
 
 // All types of exprs begin here
 
-expr 	:  expr TOKEN_ASSIGN layer9
-	| layer9
+expr 	:  expr TOKEN_ASSIGN expr_or
+			{ $$ = expr_create(EXPR_ASSIGN, $1 , $3 ); }
+	| expr_or
 	;
 
-layer9 	: layer9 TOKEN_OR layer8
-	| layer8
+expr_or 	: expr_or TOKEN_OR expr_and
+			{ $$ = expr_create(EXPR_OR, $1 , $3 ); }
+	| expr_and
 	;
 
-layer8 	: layer8 TOKEN_AND layer7
-	| layer7
+expr_and 	: expr_and TOKEN_AND expr_comp
+			{ $$ = expr_create(EXPR_AND, $1 , $1 ); }
+	| expr_comp
 	;
 
-layer7 	: layer7 TOKEN_GT layer6
-	| layer7 TOKEN_GE layer6
-	| layer7 TOKEN_LT layer6
-	| layer7 TOKEN_LE layer6
-	| layer7 TOKEN_EQ layer6
-	| layer7 TOKEN_NEQ layer6
-	| layer6
+expr_comp 	: expr_comp TOKEN_GT expr_add
+			{ $$ = expr_create(EXPR_GT, $1, $3 ); }
+	| expr_comp TOKEN_GE expr_add
+			{ $$ = expr_create(EXPR_GE, $1, $3 ); }
+	| expr_comp TOKEN_LT expr_add
+			{ $$ = expr_create(EXPR_LT, $1, $3 ); }
+	| expr_comp TOKEN_LE expr_add
+			{ $$ = expr_create(EXPR_LE, $1, $3 ); }
+	| expr_comp TOKEN_EQ expr_add
+			{ $$ = expr_create(EXPR_EQ, $1, $3 ); }
+	| expr_comp TOKEN_NEQ expr_add
+			{ $$ = expr_create(EXPR_NEQ, $1, $3 ); }
+	| expr_add
 	;
 
-layer6	: layer6 TOKEN_ADD layer5
-	| layer6 TOKEN_MINUS layer5
-	| layer5
+expr_add	: expr_add TOKEN_ADD expr_mult
+			{ $$ = expr_create(EXPR_ADD, $1, $3 ); }
+	| expr_add TOKEN_MINUS expr_mult
+			{ $$ = expr_create(EXPR_SUB, $1, $3 ); }
+	| expr_mult
 	;
 
-layer5	: layer5 TOKEN_MULT layer4
-	| layer5 TOKEN_DIV layer4
-	| layer5 TOKEN_MOD layer4
-	| layer4
+expr_mult	: expr_mult TOKEN_MULT expr_expo
+			{ $$ = expr_create(EXPR_MUL , $1 , $3 ); }
+	| expr_mult TOKEN_DIV expr_expo
+			{ $$ = expr_create(EXPR_DIV, $1, $3 ); }
+	| expr_mult TOKEN_MOD expr_expo
+			{ $$ = expr_create(EXPR_MOD, $1, $3 ); }
+	| expr_expo
 	;
 
-layer4 	: TOKEN_EXPONENT layer3
-	| layer3
+expr_expo 	: expr_expo TOKEN_EXPONENT expr_not
+			{ $$ = expr_create(EXPR_EXPONENT, $1, $3 ); }
+	| expr_not
 	;
 
-layer3 	: TOKEN_NOT layer2
-	| TOKEN_MINUS layer2
-	| layer2
+expr_not 	: TOKEN_NOT expr_postfix
+			{ $$ = expr_create(EXPR_NOT, NULL, $2 ); }
+	| TOKEN_MINUS expr_postfix
+			{ $$ = expr_create(EXPR_NEG, NULL, $2 ); }
+	| expr_postfix
 	;
 
-layer2  : layer2 TOKEN_INCREMENT 
-	| layer2 TOKEN_DECREMENT
-	| layer1
+expr_postfix  : expr_postfix TOKEN_INCREMENT
+			{ $$ = expr_create(EXPR_INCREMENT, $1, NULL ); }
+	| expr_postfix TOKEN_DECREMENT
+			{ $$ = expr_create(EXPR_DECREMENT, $1, NULL ); }
+	| expr_groups
 	;
 
-layer1 	: TOKEN_IDENT TOKEN_LP arg_list TOKEN_RP
-	| TOKEN_IDENT TOKEN_LP TOKEN_RP
+expr_groups 	: ident TOKEN_LP arg_list TOKEN_RP
+			{ $$ = expr_create(EXPR_FCALL_ARGS, $1, $3 ); }
+	| ident TOKEN_LP TOKEN_RP
+			{ $$ = expr_create(EXPR_FCALL, $1, NULL ); }
 	| TOKEN_LP expr TOKEN_RP
-	| TOKEN_IDENT TOKEN_LB expr TOKEN_RB
+			{ $$ = expr_create(EXPR_PAREN, NULL, $2 ); }
+	| ident TOKEN_LB expr TOKEN_RB
+			{ $$ = expr_create(EXPR_REF, $1, $3 ); }
 	| value
 	;
 
 value	: TOKEN_INTEGER_LITERAL
+			{ $$ = expr_create_integer_literal(atoi(yytext)); }
 	| TOKEN_STRING_LITERAL
+			{ $$ = expr_create_string_literal(yytext); }
 	| TOKEN_CHAR_LITERAL
+			{ $$ = expr_create_char_literal(yytext[0]); }
 	| TOKEN_TRUE
+			{ $$ = expr_create_boolean_literal(true); }
 	| TOKEN_FALSE
-	| TOKEN_IDENT
+			{ $$ = expr_create_boolean_literal(false); }
+	| ident 
+	;
+
+ident 	: TOKEN_IDENT
+			{ $$ = expr_create_name(yytext); }
 	;
 
 // arg_list
@@ -227,15 +276,25 @@ arg_list : expr
 // types
 
 type 	: TOKEN_T_ARRAY TOKEN_LB TOKEN_RB type
+			{ $$ = type_create(TYPE_ARRAY, $4, 0 ); }
 	| TOKEN_T_ARRAY TOKEN_LB TOKEN_INTEGER_LITERAL TOKEN_RB type
+			{ $$ = type_create(TYPE_ARRAY, $5, 0 ); }
 	| TOKEN_T_AUTO
+			{ $$ = type_create(TYPE_AUTO, 0, 0 ); }
 	| TOKEN_T_BOOLEAN
+			{ $$ = type_create(TYPE_BOOLEAN, 0, 0 ); }
 	| TOKEN_T_CHAR
+			{ $$ = type_create(TYPE_CHARACTER, 0, 0 ); }
 	| TOKEN_T_INTEGER
+			{ $$ = type_create(TYPE_INTEGER, 0, 0 ); }
 	| TOKEN_T_STRING
+			{ $$ = type_create(TYPE_STRING, 0, 0 ); }
 	| TOKEN_VOID
+			{ $$ = type_create(TYPE_VOID, 0, 0 ); }
 	| TOKEN_FUNCTION type TOKEN_LP param_list TOKEN_RP
+			{ $$ = type_create(TYPE_FUNCTION, $2, $4 ); }
 	| TOKEN_FUNCTION type TOKEN_LP TOKEN_RP
+			{ $$ = type_create(TYPE_FUNCTION, $2, NULL ); }
 	;
 
 %%
@@ -248,6 +307,6 @@ useful.  In practice, it often does not.
 
 int yyerror( char *str )
 {
-	printf("parse error: %s\n",str);
-	return 0;
+	printf("parse error: %s\n", str);
+	return 1;
 }
