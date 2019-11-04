@@ -82,9 +82,9 @@ for use by scanner.c.
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-//#include "type.h"
 #include "decl.h"
 
+struct stmt * parser_result = 0;
 
 extern char *yytext;
 extern int yylex();
@@ -96,13 +96,14 @@ extern int yyerror( char *str );
 
 /* Here is the grammar: program is the start symbol. */
 
-program : stmts 	{ return 0; }
+program : stmts 	{ parser_result = $1; return 0; }
 	| 				{ return 0; }
 	;
 
 // stmts
 
 stmts 	:  stmt stmts
+			{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, $2); }
 	| stmt
 	;
 
@@ -125,24 +126,20 @@ restricted: non_if_stmt
 
 // non_if_statements
 
-non_if_stmt:  TOKEN_WHILE TOKEN_LP expr TOKEN_RP stmt
-			{ $$ = NULL; }
-	| TOKEN_FOR TOKEN_LP opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLON opt_args TOKEN_RP stmt
+non_if_stmt: TOKEN_FOR TOKEN_LP opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLON opt_args TOKEN_RP stmt
 			{ $$ = stmt_create(STMT_FOR, NULL, $3, $5, $7, $9, NULL, NULL); }
 	| expr TOKEN_SEMICOLON
-			{ $$ = stmt_create(STMT_EXPR, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
+			{  $$ = stmt_create(STMT_EXPR, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 	| TOKEN_RETURN expr TOKEN_SEMICOLON
-			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, $2, NULL, NULL, NULL); }
+			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
 	| TOKEN_RETURN TOKEN_SEMICOLON
 			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| TOKEN_LCB stmts TOKEN_RCB
 			{ $$ = $2; }
-	| TOKEN_LCB arg_list TOKEN_RCB
-			{ $$ = $2; }
 	| TOKEN_PRINT TOKEN_SEMICOLON
 			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| TOKEN_PRINT arg_list TOKEN_SEMICOLON
-			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, $2, NULL, NULL, NULL); }
+			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
 	| decl
 			{ $$ = stmt_create(STMT_DECL, $1, NULL, NULL, NULL, NULL, NULL, NULL); }
 	;
@@ -165,7 +162,7 @@ decl 	: param TOKEN_ASSIGN non_if_stmt
 
 param_list 	: param
 	| param TOKEN_COMMA param_list
-			{ $1->next = $3; }
+			{ $1->next = $3; $$ = $1; }
 	;
 
 param 	:  ident TOKEN_COLON type 
@@ -176,6 +173,9 @@ param 	:  ident TOKEN_COLON type
 
 expr 	:  expr TOKEN_ASSIGN expr_or
 			{ $$ = expr_create(EXPR_ASSIGN, $1 , $3 ); }
+	| expr TOKEN_ASSIGN TOKEN_LCB arg_list TOKEN_RCB
+			{ $$ = expr_create(EXPR_ASSIGN, $1 , $4 ); }
+
 	| expr_or
 	;
 
@@ -271,6 +271,7 @@ ident 	: TOKEN_IDENT
 
 arg_list : expr
 	| expr TOKEN_COMMA arg_list
+			{ $$ = expr_create(EXPR_ARGLIST, $1, $3); } 
 	;
 
 // types

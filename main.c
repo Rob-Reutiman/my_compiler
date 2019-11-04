@@ -8,12 +8,14 @@ extern FILE *yyin;
 extern int yylex();
 extern int yyparse();
 extern char *yytext;
+extern struct stmt * parser_result;
 char* get_TOKEN_TYPE(token_t t_num);
 
 
 int main(int argc, char* argv[]) {
 	int SCAN = 0;
 	int PARSE = 0;
+	int PRINT = 0;
 
 	if(!strcmp(argv[1], "-scan")) {
 		SCAN = 1;
@@ -21,6 +23,10 @@ int main(int argc, char* argv[]) {
 
 	if(!strcmp(argv[1], "-parse")) {
 		PARSE = 1;
+	}
+
+	if(!strcmp(argv[1], "-print")) {
+		PRINT = 1;
 	}
 
 	if(argc == 3) {
@@ -44,9 +50,10 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		if(PARSE) {
+		if(PARSE || PRINT) {
 			if(yyparse()==0) { 
 				printf("parse successful\n");
+				stmt_print(parser_result, 0);
 				return 0;
 			} 
 			

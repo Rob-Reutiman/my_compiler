@@ -1,83 +1,97 @@
 
 #include "stmt.h"
-
-// delete from here
-typedef enum {
-	STMT_DECL,
-	STMT_EXPR,
-	STMT_IF_ELSE,
-	STMT_FOR,
-	STMT_PRINT,
-	STMT_RETURN,
-	STMT_BLOCK
-} stmt_t;
-
-struct stmt {
-	stmt_t kind;
-	struct decl *decl;
-	struct expr *init_expr;
-	struct expr *expr;
-	struct expr *next_expr;
-	struct stmt *body;
-	struct stmt *else_body;
-	struct stmt *next;
-};
-
-// to here
+#include <stdlib.h>
 
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
 
-	struct stmt *s = calloc((size_t)1, sizeof(stmt));
+	struct stmt * s = malloc(sizeof(struct stmt));
 
 	s->kind = kind;
 	s->decl = decl;
-	// if, for, while?
-	s->int_expr = init_expr;
+	s->init_expr = init_expr;
 	s->expr = expr;
 	s->next_expr = next_expr;
-
 	s->body = body;
-	// if an else exists
 	s->else_body = else_body;
-
 	s->next = next;
 
+	return s;
 }
 
 void stmt_print( struct stmt *s, int indent ) {
 
-	while(indent > 0) {
-		printf("\t");
-		ident--;
-	}
+	if(!s) return;	
 
 	switch(s->kind) {
 		case STMT_DECL:
-			decl_print(s->decl, 0);
+			decl_print(s->decl, indent);
 			break;
 		case STMT_EXPR:
-			expr_print(s->expr, 0);
+			tab_print(indent);
+			expr_print(s->expr);
 			break;
 		case STMT_IF_ELSE: 
-			printf(
+			tab_print(indent);
+			printf("if(");
+			expr_print(s->expr);
+			printf(") {\n");
+			stmt_print(s->body, indent+1);
+			printf("\n");
+			tab_print(indent);
+			printf("}");
+			if(s->else_body) {
+				printf(" else {\n");
+				stmt_print(s->else_body, indent+1);
+				printf("\n");
+				tab_print(indent);
+				printf("}");
+			}
 			break;
 		case STMT_FOR:
-			
+			tab_print(indent);
+			printf("for(");
+			expr_print(s->init_expr);
+			printf(";");
+			expr_print(s->expr);
+			printf(";");
+			expr_print(s->next_expr);
+			printf(";) {\n");
+			stmt_print(s->body, indent+1);
+			printf("}\n");
 			break;
 		case STMT_PRINT:
-			
+			tab_print(indent);
+			printf("print ");
+			expr_print(s->expr);
+			printf(";");
 			break;
 		case STMT_RETURN:
-
+			tab_print(indent);
+			printf("return ");
+			expr_print(s->expr);
+			printf(";");
 			break;
 		case STMT_BLOCK:
-
+			stmt_print(s->body, indent);
+			stmt_print(s->next, indent);
 			break;
-		case default:
-
+		default:
 			break;
 
 	}	
+
+}
+
+void tab_print(int indent) {
+
+	int temp = indent;
+
+	while(temp > 0) {
+		printf("\t");
+		temp--;
+	}
+
+	return;
 
 }
 
@@ -94,3 +108,4 @@ void stmt_delete(struct stmt *s ) {
 
 	free(s);
 }
+

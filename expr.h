@@ -4,7 +4,7 @@
 #include "symbol.h"
 
 typedef enum {
-	EXPR_ADD,
+	EXPR_ADD=0,
 	EXPR_SUB,
 	EXPR_MUL,
 	EXPR_DIV,
@@ -22,6 +22,7 @@ typedef enum {
 	EXPR_OR,
 	EXPR_ASSIGN,
 	// base types - symbol??
+	EXPR_ARGLIST,
 	EXPR_FCALL,
 	EXPR_FCALL_ARGS,
 	EXPR_PAREN,

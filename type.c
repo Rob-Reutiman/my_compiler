@@ -1,18 +1,20 @@
 #include "type.h"
+#include <stdlib.h>
 
 struct type * type_create( type_t kind, struct type *subtype, struct param_list *params ) {
 
-	struct type *t = calloc((size_t)1, sizeof(type));
+	struct type *t = malloc(sizeof(*t));
 
-	type->kind = kind;
-	type->params = params;
-	if(subtype) {
-		type->subtype = subtype;
-	}
+	t->kind = kind;
+	t->params = params;
+	t->subtype = subtype;
 
+	return t;
 }
 
 void type_print( struct type *t ) {
+
+	if(!t) return;
 
 	switch(t->kind) {
 
@@ -25,37 +27,35 @@ void type_print( struct type *t ) {
 			break;
 	
 		case TYPE_CHARACTER: 
-			if(t->params != NULL) {
-				printf("function 
-			}
+			printf("char");
 			break;
 	
 		case TYPE_INTEGER: 
-			if(t->params != NULL) {
-				printf("function 
-			}
+			printf("integer");
 			break;
 
 		case TYPE_STRING: 
-			if(t->params != NULL) {
-				printf("function 
-			}
+			printf("string");
 			break;
 
 		case TYPE_ARRAY: 
-			printf("array %s %s", expr_print(), type_print(t->kind));
+//			printf("array [%s] %s", size???, t->kind);
 			break;
 
 		case TYPE_FUNCTION: 
-			if(t->params != NULL) {
-				printf("function 
+			printf("function ");
+		   	type_print(t->subtype);
+			printf(" (");
+			if(t->params) {
+				printf(" ");
+				param_list_print(t->params);
+				printf(" ");
 			}
+			printf(")");
 			break;
-
 		default:
-			printf("type error");
 			break;
-	}
+	} 
 
 }
 
