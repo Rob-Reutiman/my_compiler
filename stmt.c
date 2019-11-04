@@ -27,8 +27,8 @@ void stmt_print( struct stmt *s, int indent ) {
 			decl_print(s->decl, indent);
 			break;
 		case STMT_EXPR:
-			tab_print(indent);
 			expr_print(s->expr);
+			printf(";\n");
 			break;
 		case STMT_IF_ELSE: 
 			tab_print(indent);

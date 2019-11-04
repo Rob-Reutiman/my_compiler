@@ -34,23 +34,23 @@ void decl_print( struct decl *d, int indent ) {
 	printf(" = ");
 	expr_print(d->value);
 	
-	if(d->code) {
-		printf("\n");
-	}
-	if(d->type->kind == TYPE_FUNCTION) {
-		printf("{\n");
-		stmt_print(d->code, indent+1);
-		printf("\n}\n");
-	} else {
-		stmt_print(d->code, indent+1);
+	if(d->code) {	
+	
+		if(d->type->kind == TYPE_FUNCTION) {
+			printf("\n{\n");
+			stmt_print(d->code, indent+1);
+			printf("\n}\n");
+		} else {
+			stmt_print(d->code, indent+1);
+		}
 	}
 
 	
 		// symbol print
 	if(d->next) {
 		printf("\n");
+		decl_print(d->next, indent);
 	}
-	decl_print(d->next, indent);
 
 }
 
