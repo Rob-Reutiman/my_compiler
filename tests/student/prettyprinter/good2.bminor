@@ -1,0 +1,6 @@
+b: boolean = true;
+c: char = '\n';
+s: string = "test";
+i: integer = 5;
+
+

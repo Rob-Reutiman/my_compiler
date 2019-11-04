@@ -1,0 +1,7 @@
+if( (x > false && y != 2 ) || a < 2) {
+	if(!(puts()) ) {
+		gets();
+	} else {
+		x = 5;
+	}
+}

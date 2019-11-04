@@ -1,0 +1,8 @@
+wait : function integer(x: integer) = {
+
+	for(y=x; y > 0; y--) {
+		print "waiting";
+	}
+
+}
+	

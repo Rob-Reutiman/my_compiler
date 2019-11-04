@@ -57,6 +57,8 @@ void stmt_print( struct stmt *s, int indent ) {
 			expr_print(s->next_expr);
 			printf(";) {\n");
 			stmt_print(s->body, indent+1);
+			printf("\n");
+			tab_print(indent);
 			printf("}\n");
 			break;
 		case STMT_PRINT:

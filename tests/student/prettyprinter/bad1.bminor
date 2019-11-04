@@ -1,0 +1,6 @@
+
+main: integer [5] array (args: string ) = {
+
+	return "Failure";
+
+}

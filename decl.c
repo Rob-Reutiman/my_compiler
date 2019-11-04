@@ -31,11 +31,10 @@ void decl_print( struct decl *d, int indent ) {
 
 	printf("%s: ", d->name);
 	type_print(d->type);
-	printf(" = ");
 	expr_print(d->value);
 	
 	if(d->code) {	
-	
+		printf(" = ");
 		if(d->type->kind == TYPE_FUNCTION) {
 			printf("\n{\n");
 			stmt_print(d->code, indent+1);
@@ -43,6 +42,8 @@ void decl_print( struct decl *d, int indent ) {
 		} else {
 			stmt_print(d->code, indent+1);
 		}
+	} else {
+		printf(";\n");
 	}
 
 	

@@ -39,7 +39,12 @@ void type_print( struct type *t ) {
 			break;
 
 		case TYPE_ARRAY: 
-//			printf("array [%s] %s", size???, t->kind);
+			printf("array ");
+			type_print(t->subtype);
+			break;
+
+		case TYPE_AUTO:
+			printf("auto");
 			break;
 
 		case TYPE_FUNCTION: 

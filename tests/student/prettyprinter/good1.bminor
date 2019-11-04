@@ -1,0 +1,7 @@
+
+y: integer = 5;
+x: boolean = true;
+z: string = "Hey";
+q: void = "hm";
+a: auto;
+b: void;

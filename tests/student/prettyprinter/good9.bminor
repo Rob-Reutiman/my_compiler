@@ -1,0 +1,8 @@
+
+
+take: function array [] integer (a: array [] integer) = {
+		if(a[i] == 0) {
+			sum++;
+		}
+		i++;
+}
