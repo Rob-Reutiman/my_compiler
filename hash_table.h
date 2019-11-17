@@ -34,6 +34,25 @@ while(hash_table_nextkey(h,&key,&value)) {
 
 typedef unsigned (*hash_func_t) (const char *key);
 
+/* Hash table members */
+
+struct entry {
+	char *key;
+	void *value;
+	unsigned hash;
+	struct entry *next;
+};
+
+struct hash_table {
+	hash_func_t hash_func;
+	int bucket_count;
+	int size;
+	struct entry **buckets;
+	int ibucket;
+	struct entry *ientry;
+	struct hash_table *next;
+};
+
 /** Create a new hash table.
 @param buckets The number of buckets in the table.  If zero, a default value will be used.
 @param func The default hash function to be used.  If zero, @ref hash_string will be used.

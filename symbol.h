@@ -3,6 +3,7 @@
 #define SYMBOL_H
 
 #include "type.h"
+#include "hash_table.h" 
 
 typedef enum {
 	SYMBOL_LOCAL,

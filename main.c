@@ -9,25 +9,23 @@ extern int yylex();
 extern int yyparse();
 extern char *yytext;
 extern struct stmt * parser_result;
-char* get_TOKEN_TYPE(token_t t_num);
+char* get_TOKEN_TYPE(token_t);
 
+typedef enum {
+	SCAN=1,
+	PARSE,
+	PRINT,
+	RESOLVE,
+	TYPECHECK
+} flag_t;
+
+void flag_set(flag_t*, char*);
 
 int main(int argc, char* argv[]) {
-	int SCAN = 0;
-	int PARSE = 0;
-	int PRINT = 0;
 
-	if(!strcmp(argv[1], "-scan")) {
-		SCAN = 1;
-	}
+	flag_t flag = 0;
 
-	if(!strcmp(argv[1], "-parse")) {
-		PARSE = 1;
-	}
-
-	if(!strcmp(argv[1], "-print")) {
-		PRINT = 1;
-	}
+	flag_set(&flag, argv[1]);
 
 	if(argc == 3) {
 
@@ -37,34 +35,67 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 
-
-		if(SCAN) {
-			while(1) {
-				token_t t = yylex();
-				if(t==TOKEN_EOF) break;
-				if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
-					printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
-				} else {
-					printf("%s\n", get_TOKEN_TYPE(t));
+		switch(flag) {
+			case SCAN: 
+				while(1) {
+					token_t t = yylex();
+					if(t==TOKEN_EOF) break;
+					if(t==TOKEN_IDENT || t==TOKEN_STRING_LITERAL || t==TOKEN_CHAR_LITERAL || t==TOKEN_INTEGER_LITERAL) {
+						printf("%s %s\n", get_TOKEN_TYPE(t), yytext);
+					} else {
+						printf("%s\n", get_TOKEN_TYPE(t));
+					}
 				}
-			}
+				break;
+
+			case PARSE: 
+				if(yyparse()==0) { 
+					printf("parse successful\n");
+					return 0;
+				} else {
+					fprintf(stderr, "parse failed!\n");
+					return 1;
+				}  
+				break;
+			
+
+			case PRINT:
+				if(yyparse()==0) { 
+					stmt_print(parser_result, 0);
+					return 0;
+				} else {
+					fprintf(stderr, "parse failed!\n");
+					return 1;
+				}  
+				break;
+
+			case RESOLVE:
+				if(yyparse()==0) { 
+					printf("resolve\n");
+					return 0;
+				} else {
+					fprintf(stderr, "parse failed!\n");
+					return 1;
+				}  
+				break;
+
+			case TYPECHECK:
+				if(yyparse()==0) { 
+					printf("typecheck\n");
+					return 0;
+				} else {
+					fprintf(stderr, "parse failed!\n");
+					return 1;
+				}  
+				break;
+
+			default:
+				fprintf(stderr, "Usage: Invalid flag\n");
+				return 1;
 		}
 
-		if(PARSE || PRINT) {
-			if(yyparse()==0) { 
-				printf("parse successful\n");
-				stmt_print(parser_result, 0);
-				return 0;
-			} 
-			
-			else {
-				printf("parse failed!\n");
-				return 1;
-			}  
-			
-		} 
-	} else {
-		printf("Usage: bminor -[flag] [sourcefile.bminor]\n");
+	} else { 
+		fprintf(stderr, "Usage: bminor -[flag] [sourcefile.bminor]\n");
 		return 1;
 	}
 
@@ -247,5 +278,27 @@ char* get_TOKEN_TYPE(token_t t_num) {
 		default:
 			fprintf(stderr, "scan error: unknown token %s\n", yytext);
 			exit(1);
+	}
+}
+
+void flag_set(flag_t *flag, char* str) {
+	if(!strcmp(str, "-scan")) {
+		*flag = SCAN;
+	}
+
+	if(!strcmp(str, "-parse")) {
+		*flag = PARSE;
+	}
+
+	if(!strcmp(str, "-print")) {
+		*flag = PRINT;
+	}
+
+	if(!strcmp(str, "-resolve")) {
+		*flag = RESOLVE;
+	}
+
+	if(!strcmp(str, "-typecheck")) {
+		*flag = TYPECHECK;
 	}
 }

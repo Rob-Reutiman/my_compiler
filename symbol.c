@@ -5,7 +5,7 @@
 
 struct symbol * symbol_create( symbol_t kind, struct type *type, char *name ) {
 
-	struct symbol* s = calloc((size_t)1, sizeof(struct symbol));
+	struct symbol* s = malloc(sizeof(struct symbol));
 
 	s->kind = kind;
 	s->type = type;
@@ -24,3 +24,4 @@ void symbol_delete(struct symbol * s ) {
 
 	free(s);
 }
+
