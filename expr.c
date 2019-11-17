@@ -166,9 +166,7 @@ void expr_print( struct expr *e ) {
 			printf(")");
 			break;
 		case EXPR_PAREN:
-			printf("(");
 			expr_print(e->right);
-			printf(")");
 			break;
 		case EXPR_REF:
 			expr_print(e->left);
@@ -195,19 +193,65 @@ void expr_print( struct expr *e ) {
 			}
 			break;
 		case EXPR_CHAR_LITERAL:
-			printf("%c", e->literal_value);
+			printf("\'");
+			char_print(e->literal_value);
+			printf("\'");
 			break;
 		case EXPR_INTEGER_LITERAL:
 			printf("%d", e->literal_value);
 			break;
 		case EXPR_STRING_LITERAL:
-			printf("%s", e->string_literal);
+			printf("\"");
+			string_print(e->string_literal);
+			printf("\"");
 			break;
 		default:
 			break;
 	}
 
 }
+
+void string_print(const char* c) {
+
+	while(*c) {
+		char_print(*c);
+		c++;
+	}
+
+};
+
+void char_print(char c) {
+
+	switch(c) {
+		case '\a': printf("\\a"); break;
+			
+		case '\b': printf("\\b"); break;
+
+		case '\e': printf ("\\e"); break;
+
+		case '\f': printf ("\\f"); break;
+
+		case '\n': printf ("\\n"); break;
+
+		case '\r': printf("\\r"); break;
+
+		case '\t': printf("\\t"); break;
+
+		case '\v': printf("\\v"); break;
+
+		case '\\': printf("\\\\"); break;
+
+		case '\'': printf("\\\'"); break;
+
+		case '\"': printf("\\\""); break;
+                      
+		default:
+			printf("%c", c);
+			break;
+	}
+}
+
+
 
 void expr_delete(struct expr * e ) {
 

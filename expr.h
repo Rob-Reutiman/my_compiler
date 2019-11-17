@@ -58,6 +58,8 @@ struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
 
 void expr_print( struct expr *e );
+void string_print( const char* string_literal );
+void char_print(char c);
 void expr_delete( struct expr *e );
 
 #endif
