@@ -29,13 +29,13 @@ void stmt_print( struct stmt *s, int indent ) {
 			break;
 		case STMT_EXPR:
 			// tab print
-			expr_print(s->expr);
+			expr_print(s->expr, stdout);
 			printf(";\n");
 			break;
 		case STMT_IF_ELSE: 
 			tab_print(indent);
 			printf("if( ");
-			expr_print(s->expr);
+			expr_print(s->expr, stdout);
 			printf(" )\n");
 			tab_print(indent);
 			printf("{");
@@ -66,11 +66,11 @@ void stmt_print( struct stmt *s, int indent ) {
 		case STMT_FOR:
 			tab_print(indent);
 			printf("for( ");
-			expr_print(s->init_expr);
+			expr_print(s->init_expr, stdout);
 			printf("; ");
-			expr_print(s->expr);
+			expr_print(s->expr, stdout);
 			printf("; ");
-			expr_print(s->next_expr);
+			expr_print(s->next_expr, stdout);
 			printf("; )\n");
 			tab_print(indent);
 			printf("{\n");
@@ -82,13 +82,13 @@ void stmt_print( struct stmt *s, int indent ) {
 		case STMT_PRINT:
 			tab_print(indent);
 			printf("print ");
-			expr_print(s->expr);
+			expr_print(s->expr, stdout);
 			printf(";");
 			break;
 		case STMT_RETURN:
 			tab_print(indent);
 			printf("return ");
-			expr_print(s->expr);
+			expr_print(s->expr, stdout);
 			printf(";");
 			break;
 		case STMT_BLOCK:
@@ -135,6 +135,19 @@ void stmt_resolve( struct stmt *s, struct hash_table *h) {
 	stmt_resolve(s->else_body, h);
 	stmt_resolve(s->next, h);
 
+}
+
+void stmt_typecheck( struct stmt *s) {
+
+	if(!s) return;
+
+	decl_typecheck(s->decl);
+	expr_typecheck(s->init_expr);
+	expr_typecheck(s->expr);
+	expr_typecheck(s->next_expr);
+	stmt_typecheck(s->body);
+	stmt_typecheck(s->else_body);
+	stmt_typecheck(s->next);
 }
 
 void stmt_delete(struct stmt *s ) {

@@ -20,7 +20,7 @@ struct param_list * param_list_create( char *name, struct type *type, struct par
 void param_list_print( struct param_list *a ) {
 
 	printf("%s: ", a->name);
-   	type_print(a->type);
+   	type_print(a->type, stdout);
 	if(a->next) {
 		printf(", ");
 		param_list_print(a->next);

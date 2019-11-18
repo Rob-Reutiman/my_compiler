@@ -13,51 +13,51 @@ struct type * type_create( type_t kind, struct type *subtype, struct param_list 
 	return t;
 }
 
-void type_print( struct type *t ) {
+void type_print( struct type *t, FILE* stream ) {
 
 	if(!t) return;
 
 	switch(t->kind) {
 
 		case TYPE_VOID:
-		   	printf("void");	
+		   	fprintf(stream, "void");	
 			break;
 
 		case TYPE_BOOLEAN: 
-			printf("boolean");
+			fprintf(stream, "boolean");
 			break;
 	
 		case TYPE_CHARACTER: 
-			printf("char");
+			fprintf(stream, "char");
 			break;
 	
 		case TYPE_INTEGER: 
-			printf("integer");
+			fprintf(stream, "integer");
 			break;
 
 		case TYPE_STRING: 
-			printf("string");
+			fprintf(stream, "string");
 			break;
 
 		case TYPE_ARRAY: 
-			printf("array ");
-			type_print(t->subtype);
+			fprintf(stream, "array ");
+			type_print(t->subtype, stream);
 			break;
 
 		case TYPE_AUTO:
-			printf("auto");
+			fprintf(stream, "auto");
 			break;
 
 		case TYPE_FUNCTION: 
-			printf("function ");
-		   	type_print(t->subtype);
-			printf(" (");
+			fprintf(stream, "function ");
+		   	type_print(t->subtype, stream);
+			fprintf(stream, " (");
 			if(t->params) {
-				printf(" ");
+				fprintf(stream, " ");
 				param_list_print(t->params);
-				printf(" ");
+				fprintf(stream, " ");
 			}
-			printf(")");
+			fprintf(stream, ")");
 			break;
 		default:
 			break;
@@ -68,14 +68,14 @@ void type_print( struct type *t ) {
 int type_equals( struct type *a, struct type *b ) {
 	if( a->kind == b->kind ) {
 		if( a->kind == TYPE_CHARACTER || a->kind == TYPE_BOOLEAN || a->kind == TYPE_INTEGER || a->kind == TYPE_STRING || a->kind == TYPE_AUTO  ) {
-			return 0;
+			return 1;
 		} else if ( a->kind == TYPE_ARRAY ) {
-			if(type_equals(a->subtype, b->subtype)) return 0;
+			if(type_equals(a->subtype, b->subtype)) return 1;
 		} else if ( a->kind == TYPE_FUNCTION ) {
-			if(type_equals(a->subtype, b->subtype) && param_list_equals(a->params, b->params)) return 0; 
+			if(type_equals(a->subtype, b->subtype) && param_list_equals(a->params, b->params)) return 1; 
 		}
 	} else {
-		return 1;
+		return 0;
 	} 
 }
 

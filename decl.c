@@ -30,8 +30,8 @@ void decl_print( struct decl *d, int indent ) {
 	}
 
 	printf("%s: ", d->name);
-	type_print(d->type);
-	expr_print(d->value);
+	type_print(d->type, stdout);
+	expr_print(d->value, stdout);
 	
 	if(d->code) {	
 		printf(" = ");
@@ -69,6 +69,15 @@ void decl_resolve(struct decl* d, struct hash_table *h) {
 		scope_exit(&h);
 	}
 	decl_resolve(d->next, h);
+}
+
+void decl_typecheck(struct decl *d) {
+	if(!d) return;
+
+	expr_typecheck(d->value);
+	stmt_typecheck(d->code);
+	decl_typecheck(d->next);
+
 }
 
 void decl_delete(struct decl * d ) {

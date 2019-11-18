@@ -4,6 +4,10 @@
 #include "symbol.h"
 #include "hash_table.h"
 #include "scope.h"
+#include "type.h"
+
+extern int RESOLVE_ERROR;
+extern int TYPE_ERROR;
 
 typedef enum {
 	EXPR_ADD=0,
@@ -23,7 +27,6 @@ typedef enum {
 	EXPR_AND,
 	EXPR_OR,
 	EXPR_ASSIGN,
-	// base types - symbol??
 	EXPR_ARGLIST,
 	EXPR_FCALL,
 	EXPR_FCALL_ARGS,
@@ -59,10 +62,12 @@ struct expr * expr_create_boolean_literal( int c );
 struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
 
-void expr_print( struct expr *e );
-void string_print( const char* string_literal );
-void char_print(char c);
+void expr_print( struct expr *e, FILE* stream );
+void string_print( const char* string_literal, FILE* stream );
+void char_print(char c, FILE* stream);
 void expr_resolve( struct expr *e, struct hash_table *h);
+struct type * expr_typecheck(struct expr *e);
+void kind_print(struct expr *e);
 void expr_delete( struct expr *e );
 
 #endif

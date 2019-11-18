@@ -12,6 +12,8 @@ extern int yyparse();
 extern char *yytext;
 extern struct stmt * parser_result;
 char* get_TOKEN_TYPE(token_t);
+int RESOLVE_ERROR = 1;
+int TYPE_ERROR;
 
 typedef enum {
 	SCAN=1,
@@ -75,6 +77,9 @@ int main(int argc, char* argv[]) {
 				if(yyparse()==0) { 
 					struct hash_table *h = NULL;
 					stmt_resolve(parser_result, h);
+					if(RESOLVE_ERROR == 0) {
+						return 1;
+					}
 					return 0;
 				} else {
 					fprintf(stderr, "parse failed!\n");
@@ -84,7 +89,15 @@ int main(int argc, char* argv[]) {
 
 			case TYPECHECK:
 				if(yyparse()==0) { 
-					printf("typecheck\n");
+					struct hash_table *h = NULL;
+					stmt_resolve(parser_result, h);
+					if(RESOLVE_ERROR == 0) {
+						return 1;
+					}
+					stmt_typecheck(parser_result);
+					if(TYPE_ERROR == 0) {
+						return 1;
+					}
 					return 0;
 				} else {
 					fprintf(stderr, "parse failed!\n");
