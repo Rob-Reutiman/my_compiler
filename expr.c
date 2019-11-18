@@ -293,11 +293,11 @@ struct type * expr_typecheck( struct expr *e ) {
 		case EXPR_SUB:
 			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
 				fprintf(stderr, "type error: cannot subtract a ");
-				type_print(lt, stderr);
+				type_print(rt, stderr);
 				fprintf(stderr, " (");
 				expr_print(e->right, stderr);
 				fprintf(stderr, ") from a ");
-				type_print(rt, stderr);
+				type_print(lt, stderr);
 				fprintf(stderr, " (");
 				expr_print(e->left, stderr);
 				fprintf(stderr, ")\n");
@@ -325,11 +325,11 @@ struct type * expr_typecheck( struct expr *e ) {
 		case EXPR_DIV:
 			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
 				fprintf(stderr, "type error: cannot div a ");
-				type_print(lt, stderr);
+				type_print(rt, stderr);
 				fprintf(stderr, " (");
 				expr_print(e->right, stderr);
 				fprintf(stderr, ") by a ");
-				type_print(rt, stderr);
+				type_print(lt, stderr);
 				fprintf(stderr, " (");
 				expr_print(e->left, stderr);
 				fprintf(stderr, ")\n");
@@ -355,7 +355,7 @@ struct type * expr_typecheck( struct expr *e ) {
 			break;
 
 		case EXPR_INCREMENT:
-			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+			if(lt->kind != TYPE_INTEGER) {
 				fprintf(stderr, "type error: cannot increment a ");
 				type_print(lt, stderr);
 				fprintf(stderr, " (");
@@ -364,10 +364,11 @@ struct type * expr_typecheck( struct expr *e ) {
 				TYPE_ERROR = 0;
 			}
 			result = type_create(TYPE_INTEGER,0,0);
+
 			break;
 
 		case EXPR_DECREMENT:
-			if(lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+			if(lt->kind != TYPE_INTEGER) {
 				fprintf(stderr, "type error: cannot decrement a ");
 				type_print(lt, stderr);
 				fprintf(stderr, " (");
@@ -563,47 +564,126 @@ struct type * expr_typecheck( struct expr *e ) {
 			break;
 
 		case EXPR_AND:
-
+			if(lt->kind == TYPE_VOID || lt->kind == TYPE_ARRAY || lt->kind == TYPE_FUNCTION) {
+				fprintf(stderr, "type error: cannot logically AND ");
+				type_print(lt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->left, stderr);
+				fprintf(stderr, ") and ");
+				type_print(rt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->right, stderr);
+				fprintf(stderr, ")\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_create(TYPE_BOOLEAN,0,0);	
 			break;
 
 		case EXPR_OR:
-
+			if(lt->kind == TYPE_VOID || lt->kind == TYPE_ARRAY || lt->kind == TYPE_FUNCTION) {
+				fprintf(stderr, "type error: cannot logically OR ");
+				type_print(lt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->left, stderr);
+				fprintf(stderr, ") and ");
+				type_print(rt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->right, stderr);
+				fprintf(stderr, ")\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_create(TYPE_BOOLEAN,0,0);	
 			break;
 
 		case EXPR_ASSIGN:
-
-			break;
+			if(lt->kind == TYPE_AUTO) {
+				lt->kind == rt->kind;
+				fprintf(stderr, "notice: type of ");
+				expr_print(e->left, stderr);
+				fprintf(stderr, " is ");
+				type_print(rt, stderr);
+				fprintf(stderr, "\n");
+			}
+			if(lt->kind == TYPE_VOID) {
+				fprintf(stderr, "type error: cannot assign a void (");
+				expr_print(e->left, stderr);
+				fprintf(stderr, ") to a value\n");
+				TYPE_ERROR = 0;
+			}
+			if(!type_equals(lt, rt)) {
+				fprintf(stderr, "type error: cannot assign a ");
+				type_print(lt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->left, stderr);
+				fprintf(stderr, ") to a ");
+				type_print(rt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->right, stderr);
+				fprintf(stderr, ")\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_copy(lt);
+			break;	
 
 		case EXPR_ARGLIST:
-
+			result = type_copy(lt);
 			break;
 
 		case EXPR_FCALL:
-	
+			result = type_copy(lt->subtype);
 			break;
 
 		case EXPR_FCALL_ARGS:
-
+			result = type_copy(lt->subtype);
 			break;
 
 		case EXPR_PAREN:
-
+			result = type_copy(rt);	
 			break;
 
 		case EXPR_REF:
-
+			if(lt->kind == TYPE_ARRAY) {
+				if(rt->kind != TYPE_INTEGER) {
+					fprintf(stderr, "Must index array with integer");
+					TYPE_ERROR = 0;	
+				} 
+				result = type_copy(lt->subtype);
+			} else {
+				fprintf(stderr, "Can only index an array");
+				result = type_copy(lt);
+			}
 			break;
 
 		case EXPR_NOT:
-
+			if(rt->kind != TYPE_BOOLEAN) {
+				fprintf(stderr, "type error: cannot logical not a ");
+				type_print(rt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->right, stderr);
+				fprintf(stderr, ")\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_create(TYPE_BOOLEAN,0,0);
 			break;
 
 		case EXPR_NEG:
-
+			if(rt->kind != TYPE_INTEGER) {
+				fprintf(stderr, "type error: cannot negate a ");
+				type_print(rt, stderr);
+				fprintf(stderr, " (");
+				expr_print(e->right, stderr);
+				fprintf(stderr, ")\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_create(TYPE_INTEGER,0,0);
 			break;
 
 		case EXPR_NAME:
-			result = type_create(e->symbol->type->kind,0,0);
+			if(e->symbol->type->kind == TYPE_VOID) {
+				fprintf(stderr, "type error: ident cannot be of type void\n");
+				TYPE_ERROR = 0;
+			}
+			result = type_create(e->symbol->type->kind, e->symbol->type->subtype, e->symbol->type->params);
 			break; 
 
 		case EXPR_BOOLEAN_LITERAL:

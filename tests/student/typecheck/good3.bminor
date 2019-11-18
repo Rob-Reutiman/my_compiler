@@ -1,0 +1,12 @@
+
+z: boolean = true;
+
+if(z) {
+	x: integer = 5;
+}
+
+if(!z) {
+	y: integer = 0;
+}
+
+x: void;

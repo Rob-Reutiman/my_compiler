@@ -1,0 +1,10 @@
+ 
+x: integer = 5;
+
+if( x > 3) {
+	x: boolean = true;
+}
+
+if(x) {
+	return true;
+}

@@ -1,0 +1,12 @@
+
+stop: boolean = true;
+i: integer;
+count : integer;
+
+for( i = 0; i != 5; i++ ) { { {
+	if(!stop) { {
+		-count--; 
+	} }
+}
+}
+}

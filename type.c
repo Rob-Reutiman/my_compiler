@@ -80,6 +80,8 @@ int type_equals( struct type *a, struct type *b ) {
 }
 
 struct type * type_copy( struct type *t ) {
+	if(!t) return 0;
+
 	return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params) );
 }
 

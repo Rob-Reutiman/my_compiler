@@ -1,0 +1,7 @@
+vals: array [10] boolean;
+
+integer i;
+
+for(i = 0; i < 10; i++) {
+	array[i] = true;
+}

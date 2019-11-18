@@ -141,13 +141,65 @@ void stmt_typecheck( struct stmt *s) {
 
 	if(!s) return;
 
-	decl_typecheck(s->decl);
-	expr_typecheck(s->init_expr);
-	expr_typecheck(s->expr);
-	expr_typecheck(s->next_expr);
-	stmt_typecheck(s->body);
-	stmt_typecheck(s->else_body);
+	struct type *t;
+	switch(s->kind) {
+		case STMT_DECL:
+			decl_typecheck(s->decl);
+			break;
+		case STMT_EXPR:
+			t = expr_typecheck(s->expr);
+			type_delete(t);
+			break;
+		case STMT_IF_ELSE:
+			t = expr_typecheck(s->expr);
+			if(t->kind!=TYPE_BOOLEAN) {
+				fprintf(stderr, "type error: if expression ");
+				expr_print(s->expr, stderr);
+				fprintf(stderr, " must be of type boolean\n");
+				TYPE_ERROR = 0;
+			}
+			type_delete(t);
+			stmt_typecheck(s->body);
+			stmt_typecheck(s->else_body);
+			break;
+		case STMT_FOR:
+			t = expr_typecheck(s->init_expr);
+			if(t->kind!= TYPE_INTEGER) {
+				fprintf(stderr, "type error: for init expression ");
+				expr_print(s->init_expr, stderr);
+				fprintf(stderr, " must be of type integer\n");
+				TYPE_ERROR = 0;
+			}
+			t = expr_typecheck(s->expr);
+			if(t->kind!=TYPE_BOOLEAN) {
+				fprintf(stderr, "type error: for expression ");
+				expr_print(s->expr, stderr);
+				fprintf(stderr, " must be of type boolean\n");
+				TYPE_ERROR = 0;
+			}
+			t = expr_typecheck(s->next_expr);
+			if(t->kind!=TYPE_INTEGER) {
+				fprintf(stderr, "type error: for next expression ");
+				expr_print(s->next->expr, stderr);
+				fprintf(stderr, " must be of type integer\n");
+				TYPE_ERROR = 0;
+			}
+			type_delete(t);
+			stmt_typecheck(s->body);
+			break;
+		case STMT_PRINT:
+			t = expr_typecheck(s->expr);
+			break;
+		case STMT_RETURN:
+			t = expr_typecheck(s->expr);
+			break;
+		case STMT_BLOCK:
+			stmt_typecheck(s->body);
+			break;
+	}
+
 	stmt_typecheck(s->next);
+
 }
 
 void stmt_delete(struct stmt *s ) {

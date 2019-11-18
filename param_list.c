@@ -39,6 +39,9 @@ void param_list_resolve( struct param_list *a, struct hash_table *h) {
 }
 
 struct param_list *param_list_copy(struct param_list *a) {
+
+	if(!a) return NULL;
+
 	struct param_list *p = param_list_create(a->name, type_copy(a->type), param_list_copy(a->next));
 	p->symbol = symbol_copy(a->symbol);
 

@@ -1,0 +1,10 @@
+
+x: integer = 5;
+y: integer = 7;
+z: integer = 2;
+
+if( y > x ) {
+	for(z; z<y; z++) {
+		x++;
+	}
+}

@@ -1,0 +1,16 @@
+
+size: integer = 5;
+
+empty: function array [] integer (a: array [] integer) = {
+		i: integer;
+		arr: array [5] integer;
+
+		for(i = 0; i < size; i++) {
+			if(a[i] == 0) {
+				arr[i] = 1;
+			}
+		}
+
+	return arr;
+
+}

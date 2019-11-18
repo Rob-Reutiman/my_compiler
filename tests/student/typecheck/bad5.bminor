@@ -1,0 +1,7 @@
+
+c: char = '\n';
+s: string = "\n";
+
+if( c == s) {
+	return true;
+}

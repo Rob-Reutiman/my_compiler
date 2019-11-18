@@ -74,9 +74,27 @@ void decl_resolve(struct decl* d, struct hash_table *h) {
 void decl_typecheck(struct decl *d) {
 	if(!d) return;
 
-	expr_typecheck(d->value);
-	stmt_typecheck(d->code);
-	decl_typecheck(d->next);
+	if(d->value) {
+		struct type *t;
+		t = expr_typecheck(d->value);
+		if(d->symbol->type->kind == TYPE_AUTO) {
+			d->symbol->type = t;
+		}
+		if(!type_equals(t, d->symbol->type)) {
+			fprintf(stderr, "type error: cannot declare a ");
+			type_print(t, stderr);
+			fprintf(stderr, " (");
+			expr_print(d->value, stderr);
+			fprintf(stderr, ") equal to a ");
+			type_print(d->symbol->type, stderr);
+			fprintf(stderr, "\n");
+			TYPE_ERROR = 0;
+		}
+	}
+
+	if(d->code) {
+		stmt_typecheck(d->code);
+	}
 
 }
 

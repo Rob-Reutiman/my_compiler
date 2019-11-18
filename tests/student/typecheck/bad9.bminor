@@ -1,0 +1,4 @@
+
+f: function integer (i: integer, v: void) = {
+	return v;
+} 

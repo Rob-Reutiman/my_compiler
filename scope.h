@@ -10,5 +10,6 @@ int scope_level(struct hash_table*);
 void scope_bind(struct hash_table*, char* name, struct symbol *sym);
 struct symbol* scope_lookup(struct hash_table*, const char* name);
 struct symbol* scope_lookup_current(struct hash_table*, const char* name);
+extern int RESOLVE_ERROR;
 
 #endif

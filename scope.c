@@ -61,20 +61,24 @@ void scope_bind(struct hash_table* head, char* name, struct symbol *sym) {
 		sym->which = size;	
 	}
 
-	switch(sym->kind) {
-		case SYMBOL_LOCAL:
-			printf("%s resolves to local %d\n", sym->name, sym->which);
-			break;
-		case SYMBOL_GLOBAL:
-			printf("%s resolves to global %s\n", sym->name, sym->name);
-			break;
-		case SYMBOL_PARAM:
-			printf("%s resolves to param %d\n", sym->name, sym->which);
-			break;
-	}
 	if(hash_table_insert(head, name, sym) != 1) {
-		fprintf(stderr, "Scope Bind Failure\n");	
+		fprintf(stderr, "decl failure: %s already declared in this scope\n", sym->name);
+		RESOLVE_ERROR = 0;	
+	} else {
+
+		switch(sym->kind) {
+			case SYMBOL_LOCAL:
+				printf("%s resolves to local %d\n", sym->name, sym->which);
+				break;
+			case SYMBOL_GLOBAL:
+				printf("%s resolves to global %s\n", sym->name, sym->name);
+				break;
+			case SYMBOL_PARAM:
+				printf("%s resolves to param %d\n", sym->name, sym->which);
+				break;
+		}
 	}
+
 }
 
 struct symbol *scope_lookup(struct hash_table* head, const char* name) {

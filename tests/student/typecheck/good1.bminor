@@ -1,0 +1,5 @@
+a: integer = 2;
+b: boolean = false;
+c: string = "test";
+d: void;
+e: auto = 5;

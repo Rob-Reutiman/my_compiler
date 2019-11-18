@@ -1,0 +1,10 @@
+count : function integer(x: integer) = {
+
+	y: integer;
+
+	for(y=x; y > 0; y--) {
+		print "counting!";
+	}
+
+}
+	

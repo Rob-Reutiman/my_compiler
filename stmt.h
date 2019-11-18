@@ -6,6 +6,8 @@
 #include "expr.h"
 #include "param_list.h"
 
+extern int TYPE_ERROR;
+
 typedef enum {
 	STMT_DECL,
 	STMT_EXPR,

@@ -13,7 +13,7 @@ extern char *yytext;
 extern struct stmt * parser_result;
 char* get_TOKEN_TYPE(token_t);
 int RESOLVE_ERROR = 1;
-int TYPE_ERROR;
+int TYPE_ERROR = 1;
 
 typedef enum {
 	SCAN=1,

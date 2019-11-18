@@ -1,0 +1,6 @@
+
+a: void;
+b: integer = 0;
+c: boolean = true;
+
+d: auto = a + b + c;
