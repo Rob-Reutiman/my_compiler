@@ -1,4 +1,5 @@
 #include "type.h"
+#include "param_list.h"
 #include <stdlib.h>
 
 struct type * type_create( type_t kind, struct type *subtype, struct param_list *params ) {
@@ -64,8 +65,22 @@ void type_print( struct type *t ) {
 
 }
 
-void type_resolve( struct type *t, struct hash_table *h) {
+int type_equals( struct type *a, struct type *b ) {
+	if( a->kind == b->kind ) {
+		if( a->kind == TYPE_CHARACTER || a->kind == TYPE_BOOLEAN || a->kind == TYPE_INTEGER || a->kind == TYPE_STRING || a->kind == TYPE_AUTO  ) {
+			return 0;
+		} else if ( a->kind == TYPE_ARRAY ) {
+			if(type_equals(a->subtype, b->subtype)) return 0;
+		} else if ( a->kind == TYPE_FUNCTION ) {
+			if(type_equals(a->subtype, b->subtype) && param_list_equals(a->params, b->params)) return 0; 
+		}
+	} else {
+		return 1;
+	} 
+}
 
+struct type * type_copy( struct type *t ) {
+	return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params) );
 }
 
 void type_delete(struct type * t ) {

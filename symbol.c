@@ -1,5 +1,6 @@
 
 #include "symbol.h"
+#include "type.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,12 +10,14 @@ struct symbol * symbol_create( symbol_t kind, struct type *type, char *name ) {
 
 	s->kind = kind;
 	s->type = type;
-	if(name) {
-		s->name = strdup(name);
-	}
+	s->name = strdup(name);
 
 	return s;
 
+}
+
+struct symbol *symbol_copy(struct symbol *s) {
+	return symbol_create(s->kind, type_copy(s->type), strdup(s->name));
 }
 
 void symbol_delete(struct symbol * s ) {
