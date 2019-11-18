@@ -93,11 +93,13 @@ void stmt_print( struct stmt *s, int indent ) {
 			break;
 		case STMT_BLOCK:
 			stmt_print(s->body, indent);
-			if(s->next->kind == STMT_EXPR || s->next->kind == STMT_DECL) {
-		//		printf("\n");
-				tab_print(indent);
+			if(s->next) {
+				if(s->next->kind == STMT_EXPR || s->next->kind == STMT_DECL) {
+		//			printf("\n");
+					tab_print(indent);
+				}
+				stmt_print(s->next, indent);
 			}
-			stmt_print(s->next, indent);
 			break;
 		default:
 			break;
@@ -116,6 +118,22 @@ void tab_print(int indent) {
 	}
 
 	return;
+
+}
+
+void stmt_resolve( struct stmt *s, struct hash_table *h) {
+
+	if(!s) return;
+
+	decl_resolve(s->decl, h);
+	expr_resolve(s->init_expr, h);
+	expr_resolve(s->expr, h);
+	expr_resolve(s->next_expr, h);
+	if(s->kind == STMT_BLOCK) scope_enter(&h);
+	stmt_resolve(s->body, h);
+	if(s->kind == STMT_BLOCK) scope_exit(&h);
+	stmt_resolve(s->else_body, h);
+	stmt_resolve(s->next, h);
 
 }
 

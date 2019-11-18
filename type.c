@@ -64,6 +64,10 @@ void type_print( struct type *t ) {
 
 }
 
+void type_resolve( struct type *t, struct hash_table *h) {
+
+}
+
 void type_delete(struct type * t ) {
 	if(!t) return;
 	param_list_delete(t->params);

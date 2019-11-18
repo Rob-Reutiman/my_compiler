@@ -55,6 +55,22 @@ void decl_print( struct decl *d, int indent ) {
 
 }
 
+void decl_resolve(struct decl* d, struct hash_table *h) {
+	if(!d) return;
+
+	symbol_t kind = scope_level(h) > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+	d->symbol = symbol_create(kind, d->type, d->name);
+	expr_resolve(d->value, h);
+	scope_bind(h, d->name, d->symbol);
+	if(d->code) {
+		scope_enter(&h);
+		param_list_resolve(d->type->params, h);
+		stmt_resolve(d->code, h);
+		scope_exit(&h);
+	}
+	decl_resolve(d->next, h);
+}
+
 void decl_delete(struct decl * d ) {
 	if(!d) return;
 

@@ -1,5 +1,7 @@
   
 #include "token.h"
+#include "hash_table.h"
+#include "scope.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +73,8 @@ int main(int argc, char* argv[]) {
 
 			case RESOLVE:
 				if(yyparse()==0) { 
-					printf("resolve\n");
+					struct hash_table *h = NULL;
+					stmt_resolve(parser_result, h);
 					return 0;
 				} else {
 					fprintf(stderr, "parse failed!\n");

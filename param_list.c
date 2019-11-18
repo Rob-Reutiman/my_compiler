@@ -1,4 +1,5 @@
 
+#include "decl.h"
 #include "param_list.h"
 #include <stdlib.h>
 
@@ -22,6 +23,16 @@ void param_list_print( struct param_list *a ) {
 		printf(", ");
 		param_list_print(a->next);
 	}
+
+}
+
+void param_list_resolve( struct param_list *a, struct hash_table *h) {
+
+	if(!a) return;
+
+	struct decl *d = decl_create(a->name, a->type, NULL, NULL, NULL); 
+	decl_resolve(d, h);	
+	param_list_resolve(a->next, h);
 
 }
 

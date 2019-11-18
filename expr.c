@@ -245,13 +245,25 @@ void char_print(char c) {
 
 		case '\"': printf("\\\""); break;
                       
-		default:
-			printf("%c", c);
-			break;
+		default: printf("%c", c); break;
 	}
 }
 
+void expr_resolve( struct expr *e, struct hash_table *h) {
 
+	if(!e) return;
+
+	if( e->kind == EXPR_NAME ) {
+		e->symbol = scope_lookup(h, e->name);
+		if(e->symbol == NULL) {
+			fprintf(stderr, "resolve error: %s is not defined\n", e->name);
+		}
+	} else {
+		expr_resolve( e->left, h );
+		expr_resolve( e->right, h);
+	}	
+
+}
 
 void expr_delete(struct expr * e ) {
 

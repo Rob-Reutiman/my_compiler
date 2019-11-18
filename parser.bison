@@ -69,7 +69,7 @@ for use by scanner.c.
 };
 
 %type <decl> decl
-%type <stmt> stmts stmt non_if_stmt open_if restricted
+%type <stmt> program stmts stmt non_if_stmt open_if restricted
 %type <expr> expr expr_or expr_and expr_comp expr_add expr_mult expr_expo expr_not expr_postfix expr_groups value arg_list ident opt_args 
 %type <type> type
 %type <param_list> param_list param
@@ -96,14 +96,14 @@ extern int yyerror( char *str );
 
 /* Here is the grammar: program is the start symbol. */
 
-program : stmts 	{ parser_result = $1; return 0; }
+program : stmts 	{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, NULL); parser_result = $$; return 0; }
 	| 				{ return 0; }
 	;
 
 // stmts
 
 stmts 	:  stmt stmts
-			{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, $2); }
+			{ $1->next = $2; $$ = $1; }	
 	| stmt
 	;
 
@@ -135,7 +135,7 @@ non_if_stmt: TOKEN_FOR TOKEN_LP opt_args TOKEN_SEMICOLON opt_args TOKEN_SEMICOLO
 	| TOKEN_RETURN TOKEN_SEMICOLON
 			{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| TOKEN_LCB stmts TOKEN_RCB
-			{ $$ = $2; }
+			{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $2, NULL, NULL); }
 	| TOKEN_PRINT TOKEN_SEMICOLON
 			{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| TOKEN_PRINT arg_list TOKEN_SEMICOLON

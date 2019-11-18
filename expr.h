@@ -2,6 +2,8 @@
 #define EXPR_H
 
 #include "symbol.h"
+#include "hash_table.h"
+#include "scope.h"
 
 typedef enum {
 	EXPR_ADD=0,
@@ -60,6 +62,7 @@ struct expr * expr_create_string_literal( const char *str );
 void expr_print( struct expr *e );
 void string_print( const char* string_literal );
 void char_print(char c);
+void expr_resolve( struct expr *e, struct hash_table *h);
 void expr_delete( struct expr *e );
 
 #endif
