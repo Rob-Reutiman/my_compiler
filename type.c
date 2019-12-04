@@ -1,4 +1,5 @@
 #include "type.h"
+#include "expr.h"
 #include "param_list.h"
 #include <stdlib.h>
 
@@ -7,6 +8,19 @@ struct type * type_create( type_t kind, struct type *subtype, struct param_list 
 	struct type *t = malloc(sizeof(*t));
 
 	t->kind = kind;
+	t->array_size = 0;
+	t->params = params;
+	t->subtype = subtype;
+
+	return t;
+}
+
+struct type * type_create_arr_special( type_t kind, struct expr *arr_size, struct type *subtype, struct param_list *params ) {
+
+	struct type *t = malloc(sizeof(*t));
+
+	t->kind = kind;
+	t->array_size = arr_size->literal_value;
 	t->params = params;
 	t->subtype = subtype;
 
@@ -40,7 +54,7 @@ void type_print( struct type *t, FILE* stream ) {
 			break;
 
 		case TYPE_ARRAY: 
-			fprintf(stream, "array ");
+			fprintf(stream, "array [%d] ", t->array_size);
 			type_print(t->subtype, stream);
 			break;
 

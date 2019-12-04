@@ -154,6 +154,8 @@ opt_args: expr
 
 decl 	: param TOKEN_ASSIGN non_if_stmt 
 			{ $$ = decl_create($1->name, $1->type, NULL, $3, NULL); }
+	| 	param TOKEN_ASSIGN TOKEN_LCB arg_list TOKEN_RCB TOKEN_SEMICOLON
+			{ $$ = decl_create($1->name, $1->type, $4, NULL, NULL); }
 	| 	param TOKEN_SEMICOLON
 			{ $$ = decl_create($1->name, $1->type, NULL, NULL, NULL); }
 	;
@@ -278,8 +280,8 @@ arg_list : expr
 
 type 	: TOKEN_T_ARRAY TOKEN_LB TOKEN_RB type
 			{ $$ = type_create(TYPE_ARRAY, $4, 0 ); }
-	| TOKEN_T_ARRAY TOKEN_LB TOKEN_INTEGER_LITERAL TOKEN_RB type
-			{ $$ = type_create(TYPE_ARRAY, $5, 0 ); }
+	| TOKEN_T_ARRAY TOKEN_LB value TOKEN_RB type
+			{ $$ = type_create_arr_special(TYPE_ARRAY, $3, $5, 0 ); }
 	| TOKEN_T_AUTO
 			{ $$ = type_create(TYPE_AUTO, 0, 0 ); }
 	| TOKEN_T_BOOLEAN

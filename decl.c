@@ -12,7 +12,6 @@ struct decl * decl_create( char *name, struct type *type, struct expr *value, st
 
 	d->value = value;
 	d->code = code;
-	//	d->symbol = symbol_create(kind, type, name);
 	d->next = next;
 
 	return d;
@@ -31,7 +30,13 @@ void decl_print( struct decl *d, int indent ) {
 
 	printf("%s: ", d->name);
 	type_print(d->type, stdout);
+	if(d->type->kind == TYPE_ARRAY && d->value) {
+		fprintf(stdout, " = {");
+	}
 	expr_print(d->value, stdout);
+	if(d->type->kind == TYPE_ARRAY && d->value) {
+		fprintf(stdout, "}");
+	}
 	
 	if(d->code) {	
 		printf(" = ");
@@ -46,8 +51,6 @@ void decl_print( struct decl *d, int indent ) {
 		printf(";\n");
 	}
 
-	
-		// symbol print
 	if(d->next) {
 		printf("\n");
 		decl_print(d->next, indent);

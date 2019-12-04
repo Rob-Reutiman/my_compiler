@@ -192,6 +192,7 @@ void stmt_typecheck( struct stmt *s) {
 			break;
 		case STMT_RETURN:
 			t = expr_typecheck(s->expr);
+			// how to account for returning thing from void
 			break;
 		case STMT_BLOCK:
 			stmt_typecheck(s->body);

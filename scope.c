@@ -61,7 +61,13 @@ void scope_bind(struct hash_table* head, char* name, struct symbol *sym) {
 		sym->which = size;	
 	}
 
+//	if(hash_table_lookup(head, name) != 0) {
+//		fprintf(stderr, "decl failure: %s cannot be redeclared within function\n", sym->name);
+//		RESOLVE_ERROR = 0;
+//	}
+
 	if(hash_table_insert(head, name, sym) != 1) {
+		// not necessarily - check if func with diff args
 		fprintf(stderr, "decl failure: %s already declared in this scope\n", sym->name);
 		RESOLVE_ERROR = 0;	
 	} else {

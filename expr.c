@@ -67,27 +67,27 @@ void expr_print( struct expr *e , FILE* stream) {
 	switch(e->kind) {
 		case EXPR_ADD:
 			expr_print(e->left, stream);
-			fprintf(stream, "+");
+			fprintf(stream, " + ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_SUB:
 			expr_print(e->left, stream);
-			fprintf(stream, "-");
+			fprintf(stream, " - ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_MUL:
 			expr_print(e->left, stream);
-			fprintf(stream, "*");
+			fprintf(stream, " * ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_DIV:
 			expr_print(e->left, stream);
-			fprintf(stream, "/");
+			fprintf(stream, " / ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_MOD:
 			expr_print(e->left, stream);
-			fprintf(stream, "%");
+			fprintf(stream, " % ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_INCREMENT:
@@ -105,47 +105,47 @@ void expr_print( struct expr *e , FILE* stream) {
 			break;
 		case EXPR_GT:
 			expr_print(e->left, stream);
-			fprintf(stream, ">");
+			fprintf(stream, " > ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_GE:
 			expr_print(e->left, stream);
-			fprintf(stream, ">=");
+			fprintf(stream, " >= ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_LT:
 			expr_print(e->left, stream);
-			fprintf(stream, "<");
+			fprintf(stream, " < ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_LE:
 			expr_print(e->left, stream);
-			fprintf(stream, "<=");
+			fprintf(stream, " <= ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_EQ:
 			expr_print(e->left, stream);
-			fprintf(stream, "==");
+			fprintf(stream, " == ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_NEQ:
 			expr_print(e->left, stream);
-			fprintf(stream, "!=");
+			fprintf(stream, " != ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_AND:
 			expr_print(e->left, stream);
-			fprintf(stream, "&&");
+			fprintf(stream, " && ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_OR:
 			expr_print(e->left, stream);
-			fprintf(stream, "||");
+			fprintf(stream, " || ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_ASSIGN:
 			expr_print(e->left, stream);
-			fprintf(stream, "=");
+			fprintf(stream, " = ");
 			expr_print(e->right, stream);
 			break;
 		case EXPR_ARGLIST:

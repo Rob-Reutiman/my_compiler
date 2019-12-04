@@ -33,7 +33,11 @@ void param_list_resolve( struct param_list *a, struct hash_table *h) {
 	if(!a) return;
 
 	struct decl *d = decl_create(a->name, a->type, NULL, NULL, NULL); 
-	decl_resolve(d, h);	
+
+	symbol_t kind = SYMBOL_PARAM;
+	d->symbol = symbol_create(kind, d->type, d->name);
+	scope_bind(h, d->name, d->symbol);
+
 	param_list_resolve(a->next, h);
 
 }

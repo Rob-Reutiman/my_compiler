@@ -1,4 +1,4 @@
-bminor: main.o scanner.o parser.o decl.o param_list.o stmt.o expr.o type.o symbol.o hash_table.o scope.o
+bminor: main.o scanner.o parser.o decl.o param_list.o stmt.o expr.o type.o symbol.o hash_table.o scope.o scratch.o
 	gcc $^ -o $@ -lm
 
 # This pattern indicates that any .o file depends
