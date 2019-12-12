@@ -1,0 +1,7 @@
+x:integer = 20;
+
+main: function void () = {
+
+	print x / 2;
+
+}

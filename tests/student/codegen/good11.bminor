@@ -1,0 +1,6 @@
+
+i:char= 'i';
+main:function void () =
+{
+	print i,' ', 'd', i, 'd', ' ', 'm', 'y', ' ', 'b', 'e', 's', 't'; 
+}

@@ -1,0 +1,12 @@
+// print func return
+
+four: function integer () = {
+	return 4;
+}
+ 
+x:integer=5;
+
+main:function void ()=
+{
+	print x + four();
+}

@@ -1,0 +1,10 @@
+
+x:integer = 100;
+
+main: function integer () = {
+
+	x= x % 10;
+
+	return x;
+
+}

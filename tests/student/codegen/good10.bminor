@@ -1,0 +1,9 @@
+x:integer=10;
+
+main:function boolean () =
+{
+	print x;	
+
+	return true;
+	
+}

@@ -1,0 +1,8 @@
+// complicated print
+
+x: integer = 2;
+
+main:function void ()=
+{
+	print true, 'n', 5' x;
+}

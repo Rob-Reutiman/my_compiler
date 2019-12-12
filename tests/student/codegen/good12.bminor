@@ -1,0 +1,9 @@
+
+y:integer = 50;
+x:integer = 20;
+
+main: function integer () = {
+
+	return x * y - 100;
+
+}

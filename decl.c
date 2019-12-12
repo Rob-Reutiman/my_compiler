@@ -145,7 +145,7 @@ void decl_codegen(struct decl *d, FILE* stream) {
 			break;
 		case SYMBOL_LOCAL:
 			if(d->type->kind == TYPE_INTEGER || d->type->kind == TYPE_BOOLEAN || d->type->kind == TYPE_CHARACTER) {
-				fprintf(stream, "%s: .quad %d", d->name, d->code->expr->literal_value);
+				fprintf(stream, ".data\n%s: .quad %d\n", d->name, d->code->expr->literal_value);
 			} else {
 				fprintf(stream, "%s: .", d->name);
 				type_print(d->type, stream);

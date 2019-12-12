@@ -1,0 +1,10 @@
+// simple decls and prog
+
+x: integer = 0;
+
+main:function void ()=
+{
+	
+	return x;
+
+}

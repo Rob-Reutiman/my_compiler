@@ -1,0 +1,6 @@
+// simple print
+
+main:function void ()=
+{
+	print 2;
+}

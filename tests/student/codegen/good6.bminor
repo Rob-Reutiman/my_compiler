@@ -1,0 +1,17 @@
+// nested if
+
+cond1: boolean = true;
+cond2: boolean = true;
+
+x:integer=5;
+
+main:function integer ()=
+{
+	if(cond1) {
+		x = x + 10;
+		if(cond2) {
+			x = x + 5;
+		}
+	}
+	return x;
+}

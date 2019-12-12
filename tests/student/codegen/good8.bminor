@@ -1,0 +1,10 @@
+
+x:integer=10;
+f:function integer() =
+{
+	return 2;
+}
+main:function integer () =
+{
+	return x + 1 - f();
+}

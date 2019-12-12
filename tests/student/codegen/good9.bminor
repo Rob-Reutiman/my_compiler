@@ -1,0 +1,15 @@
+
+y:integer = 10;
+main:function void () =
+{
+
+	if(true)
+	{
+		print y;
+	}
+	else
+	{
+		return y * 2;
+	}	
+	
+}

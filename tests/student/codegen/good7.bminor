@@ -1,0 +1,25 @@
+
+x:integer=5;
+y:integer=20;
+
+sum: function integer () =  {
+
+	return x+y;
+
+}
+
+cond1: boolean = false;
+
+x:integer=5;
+
+main:function integer ()=
+{
+	if(cond1) {
+		x = sum();
+	} else {
+		x = x + 5;
+		x = sum();
+	}
+		
+	return x;
+}

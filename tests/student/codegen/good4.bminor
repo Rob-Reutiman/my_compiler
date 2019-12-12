@@ -1,0 +1,6 @@
+// complicated return
+
+main:function integer ()=
+{
+	return 20 + 2 / 2 * 4 % 2;
+}

@@ -38,13 +38,21 @@ const char* symbol_codegen( struct symbol *s) {
 		case SYMBOL_GLOBAL:
 			return s->name;
 		case SYMBOL_PARAM:
-			sprintf(position, "-%d(%rbp)", s->which);
-			str = strdup(position);
-			return str;
+			if(s->which = 0) {
+				return s->name;
+			} else {
+				sprintf(position, "-%d(%rbp)", s->which*8);
+				str = strdup(position);
+				return str;
+			}
 		case SYMBOL_LOCAL:
-			sprintf(position, "-%d(%rbp)", s->which);
-			str = strdup(position);
-			return str;
+			if(s->which = 0) {
+				return s->name;
+			} else {
+				sprintf(position, "-%d(%rbp)", s->which*8);
+				str = strdup(position);
+				return str;
+			}
 		default:
 			return NULL;
 	}

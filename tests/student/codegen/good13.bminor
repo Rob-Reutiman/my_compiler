@@ -1,0 +1,12 @@
+
+cond: boolean = false;
+
+main: function boolean() = {
+
+	if(cond) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
