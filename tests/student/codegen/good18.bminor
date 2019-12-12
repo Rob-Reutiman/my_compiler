@@ -1,2 +1,8 @@
 
+main: function integer () = {
+
+	return 10 ^ 3 - 100;
+
+}
+
 
