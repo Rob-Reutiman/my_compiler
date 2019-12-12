@@ -21,5 +21,7 @@ void param_list_resolve( struct param_list *a, struct hash_table *h);
 struct param_list *param_list_copy(struct param_list *a);
 int param_list_equals(struct param_list *a, struct param_list *b);
 void param_list_delete( struct param_list *a );
+void param_codegen( struct param_list *a, FILE* stream);
+char* func_labels( int i );
 
 #endif

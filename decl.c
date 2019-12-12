@@ -81,6 +81,8 @@ void decl_typecheck(struct decl *d) {
 		struct type *t;
 		t = expr_typecheck(d->value);
 		if(d->symbol->type->kind == TYPE_AUTO) {
+
+			d->symbol->type->kind = t->kind;
 			d->symbol->type = t;
 		}
 		if(!type_equals(t, d->symbol->type)) {
@@ -97,6 +99,61 @@ void decl_typecheck(struct decl *d) {
 
 	if(d->code) {
 		stmt_typecheck(d->code);
+	}
+
+}
+
+void decl_codegen(struct decl *d, FILE* stream) {
+	if(!d) return;
+
+	switch(d->symbol->kind) {
+		case SYMBOL_GLOBAL: 
+			if(d->type->kind == TYPE_INTEGER || d->type->kind == TYPE_BOOLEAN || d->type->kind == TYPE_CHARACTER) {
+				fprintf(stream, ".data\n%s: .quad %d", d->name, d->code->expr->literal_value);
+			} else if (d->type->kind == TYPE_FUNCTION) {
+				fprintf(stream, ".global %s\n", d->name);
+				fprintf(stream, "%s:\n", d->name);
+				fprintf(stream, "PUSHQ %rbp\n");
+				fprintf(stream, "MOVQ %rsp, %rbp\n");
+
+				param_codegen(d->symbol->type->params, stream);
+
+				fprintf(stream, "PUSHQ %rbx\n");
+				fprintf(stream, "PUSHQ %r12\n");
+				fprintf(stream, "PUSHQ %r13\n");
+				fprintf(stream, "PUSHQ %r14\n");
+				fprintf(stream, "PUSHQ %r15\n");
+				
+				stmt_codegen(d->code, stream);
+
+				fprintf(stream, "POPQ %r15\n");
+				fprintf(stream, "POPQ %r14\n");
+				fprintf(stream, "POPQ %r13\n");
+				fprintf(stream, "POPQ %r12\n");
+				fprintf(stream, "POPQ %rbx\n");
+
+				fprintf(stream, "MOVQ %rbp, %rsp\n");
+				fprintf(stream, "POPQ %rbp\n");
+				fprintf(stream, "RET\n");
+			} else {
+				fprintf(stream, ".data\n%s: .", d->name);
+				type_print(d->type, stream);
+				fprintf(stream, " ");
+				expr_print(d->code->expr, stream);
+			}
+			fprintf(stream, "\n");
+			break;
+		case SYMBOL_LOCAL:
+			if(d->type->kind == TYPE_INTEGER || d->type->kind == TYPE_BOOLEAN || d->type->kind == TYPE_CHARACTER) {
+				fprintf(stream, "%s: .quad %d", d->name, d->code->expr->literal_value);
+			} else {
+				fprintf(stream, "%s: .", d->name);
+				type_print(d->type, stream);
+				fprintf(stream, " ");
+				expr_print(d->code->expr, stream);
+			}
+			break;
+
 	}
 
 }

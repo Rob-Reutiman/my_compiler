@@ -73,3 +73,51 @@ void param_list_delete(struct param_list * a ) {
 
 	free(a);
 }
+
+void param_codegen(struct param_list *a, FILE* stream) {
+
+	if(!a) return;
+
+	int p_read = 0;
+
+	while(p_read < 6) {
+
+		fprintf(stream, "PUSHQ %s\n", func_labels(p_read));
+
+		p_read++;
+
+		if(a->next== NULL) {
+			return;
+		} else {
+			a=a->next;
+		}
+	}
+
+	fprintf(stderr, "Too many arguments passed to function!\n");
+	exit(EXIT_FAILURE);
+
+}
+
+char* func_labels(int p_read) {
+
+	switch(p_read) {
+		case 0:
+			return "%rdi";
+			break;
+		case 1:
+			return "%rsi";
+			break;
+		case 2:
+			return "%rdx";
+			break;
+		case 3:
+			return "%rcx";
+			break;
+		case 4:
+			return "%r8";
+			break;
+		case 5:
+			return "%r9";
+			break;
+	}
+}

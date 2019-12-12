@@ -1,5 +1,6 @@
   
 #include "token.h"
+#include "scratch.h"
 #include "hash_table.h"
 #include "scope.h"
 #include <stdio.h>
@@ -14,13 +15,16 @@ extern struct stmt * parser_result;
 char* get_TOKEN_TYPE(token_t);
 int RESOLVE_ERROR = 1;
 int TYPE_ERROR = 1;
+int SCRATCH_TABLE[6] = {0};
+int COUNTER = 0;
 
 typedef enum {
 	SCAN=1,
 	PARSE,
 	PRINT,
 	RESOLVE,
-	TYPECHECK
+	TYPECHECK,
+	CODEGEN
 } flag_t;
 
 void flag_set(flag_t*, char*);
@@ -31,7 +35,7 @@ int main(int argc, char* argv[]) {
 
 	flag_set(&flag, argv[1]);
 
-	if(argc == 3) {
+	if(argc == 3 || argc == 4) {
 
 		yyin = fopen(argv[2],"r");
 		if(!yyin) {
@@ -41,6 +45,7 @@ int main(int argc, char* argv[]) {
 
 		switch(flag) {
 			case SCAN: 
+				if(argc != 3) break;
 				while(1) {
 					token_t t = yylex();
 					if(t==TOKEN_EOF) break;
@@ -53,6 +58,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case PARSE: 
+				if(argc != 3) break;
 				if(yyparse()==0) { 
 					printf("parse successful\n");
 					return 0;
@@ -64,6 +70,7 @@ int main(int argc, char* argv[]) {
 			
 
 			case PRINT:
+				if(argc != 3) break;
 				if(yyparse()==0) { 
 					stmt_print(parser_result, 0);
 					return 0;
@@ -74,6 +81,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case RESOLVE:
+				if(argc != 3) break;
 				if(yyparse()==0) { 
 					struct hash_table *h = NULL;
 					stmt_resolve(parser_result, h);
@@ -88,6 +96,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case TYPECHECK:
+				if(argc != 3) break;
 				if(yyparse()==0) { 
 					struct hash_table *h = NULL;
 					stmt_resolve(parser_result, h);
@@ -105,17 +114,39 @@ int main(int argc, char* argv[]) {
 				}  
 				break;
 
+			case CODEGEN:
+				if(argc != 4) break;
+				if(yyparse()==0) { 
+					struct hash_table *h = NULL;
+					stmt_resolve(parser_result, h);
+					if(RESOLVE_ERROR == 0) {
+						return 1;
+					}
+					stmt_typecheck(parser_result);
+					if(TYPE_ERROR == 0) {
+						return 1;
+					}
+					FILE* output = fopen(argv[3], "w");
+					stmt_codegen(parser_result, output);
+					fclose(output);
+					return 0;
+
+				} else {
+					fprintf(stderr, "parse failed!\n");
+					return 1;
+				}  
+				break;
+
 			default:
 				fprintf(stderr, "Usage: Invalid flag\n");
 				return 1;
 		}
 
-	} else { 
-		fprintf(stderr, "Usage: bminor -[flag] [sourcefile.bminor]\n");
-		return 1;
-	}
+	} 
+	
+	fprintf(stderr, "Usage: bminor -[flag] [sourcefile.bminor] [assemblyfile.s]\n");
+	return 1;
 
-	return 0;
 }
 
 char* get_TOKEN_TYPE(token_t t_num) {
@@ -316,5 +347,9 @@ void flag_set(flag_t *flag, char* str) {
 
 	if(!strcmp(str, "-typecheck")) {
 		*flag = TYPECHECK;
+	}
+
+	if(!strcmp(str, "-codegen")) {
+		*flag = CODEGEN;
 	}
 }

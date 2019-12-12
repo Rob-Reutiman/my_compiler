@@ -5,9 +5,11 @@
 #include "hash_table.h"
 #include "scope.h"
 #include "type.h"
+#include "scratch.h"
 
 extern int RESOLVE_ERROR;
 extern int TYPE_ERROR;
+extern int SCRATCH_TABLE[6];
 
 typedef enum {
 	EXPR_ADD=0,
@@ -52,6 +54,8 @@ struct expr {
 	int literal_value;
 	const char * string_literal;
 	struct symbol *symbol;
+
+	int reg;
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
@@ -69,5 +73,6 @@ void expr_resolve( struct expr *e, struct hash_table *h);
 struct type * expr_typecheck(struct expr *e);
 void kind_print(struct expr *e);
 void expr_delete( struct expr *e );
+void expr_codegen( struct expr *e,  FILE* stream);
 
 #endif

@@ -1,6 +1,7 @@
 
 #include "stmt.h"
 #include <stdlib.h>
+#include "library.c"
 
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next ) {
 
@@ -217,3 +218,119 @@ void stmt_delete(struct stmt *s ) {
 	free(s);
 }
 
+void stmt_codegen(struct stmt *s, FILE* stream) {
+	
+	if(!s) return;
+
+	int else_label;
+	int top_label;
+	int done_label;
+	struct expr * e;
+
+	struct type *t;
+	switch(s->kind) {
+		case STMT_DECL:
+			decl_codegen(s->decl, stream);
+			break;
+		case STMT_EXPR:
+			expr_codegen(s->expr, stream);
+			scratch_free(s->expr->reg);
+			break;
+		case STMT_IF_ELSE:
+			else_label = label_create();
+			done_label = label_create();
+			expr_codegen(s->expr, stream);
+			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
+			scratch_free(s->expr->reg);
+			fprintf(stream, "JE %s\n", label_name(else_label));
+			stmt_codegen(s->body, stream);
+			fprintf(stream, "JMP %s\n", label_name(done_label));
+			fprintf(stream, "%s:\n", label_name(else_label));
+			stmt_codegen(s->else_body, stream);
+			fprintf(stream, "%s:\n",label_name(done_label));
+			break;
+		case STMT_FOR:
+			expr_codegen(s->init_expr, stream);
+			top_label = label_create();
+			done_label = label_create();
+			fprintf(stream, "%s:\n", label_name(top_label));
+			expr_codegen(s->expr, stream);
+			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
+			fprintf(stream, "JE %s\n", label_name(done_label));
+			stmt_codegen(s->body, stream);
+			expr_codegen(s->next_expr, stream);
+			fprintf(stream, "JMP %s\n", label_name(top_label));
+			fprintf(stream, "%s:\n", label_name(done_label));
+			scratch_free(s->init_expr->reg);
+			scratch_free(s->expr->reg);
+			scratch_free(s->next_expr->reg);
+			break;
+		case STMT_PRINT:
+			if(s->expr->kind == EXPR_ARGLIST) {
+				e = s->expr->left;
+			} else {
+				e = s->expr;
+			}
+			while(e) {
+				expr_codegen(e, stream);
+				fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(s->expr->reg));
+				if(e->kind == EXPR_NAME) {
+					switch(e->symbol->type->kind) {
+						case TYPE_STRING: 
+							fprintf(stream, "CALL print_string\n");
+							break;
+						case TYPE_INTEGER:
+							fprintf(stream, "CALL print_integer\n");
+							break;
+						case TYPE_BOOLEAN: 
+							fprintf(stream, "CALL print_boolean\n");
+							break;
+						case TYPE_CHARACTER: 
+							fprintf(stream, "CALL print_character\n");
+							break;
+					}	
+				} else {
+
+				switch(e->kind) {
+					case EXPR_STRING_LITERAL: 
+						fprintf(stream, "CALL print_string\n");
+						break;
+					case EXPR_INTEGER_LITERAL:
+						fprintf(stream, "CALL print_integer\n");
+						break;
+					case EXPR_BOOLEAN_LITERAL: 
+						fprintf(stream, "CALL print_boolean\n");
+						break;
+					case EXPR_CHAR_LITERAL: 
+						fprintf(stream, "CALL print_character\n");
+						break;
+					default:
+						fprintf(stream, "CALL print_integer\n");
+						break;
+				}
+				} 
+				scratch_free(e->reg);
+					if (s->expr->right == NULL || s->expr->left == NULL) {
+						e=NULL; 
+					} else if(s->expr->right->kind == EXPR_ARGLIST) {
+						s->expr=s->expr->right;
+						e=s->expr->left;
+					} else {
+						e=s->expr->right;
+						s->expr->right = NULL;
+					}
+			}	
+			break;
+		case STMT_RETURN:
+			expr_codegen(s->expr, stream);
+			fprintf(stream, "MOVQ %s, %rax\n", scratch_name(s->expr->reg));
+			scratch_free(s->expr->reg);
+			break;
+		case STMT_BLOCK:
+			stmt_codegen(s->body, stream);
+			break;
+	}
+
+	stmt_codegen(s->next, stream);
+
+}

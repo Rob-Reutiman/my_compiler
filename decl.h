@@ -22,6 +22,7 @@ void decl_print( struct decl *d, int indent );
 void decl_resolve( struct decl *d, struct hash_table *h);
 void decl_typecheck( struct decl *d);
 void decl_delete( struct decl *d );
+void decl_codegen( struct decl *d, FILE* stream);
 
 #endif
 
