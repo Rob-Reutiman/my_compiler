@@ -10,11 +10,11 @@ The scanner scans the input file using Flex to return tokens that feed into the 
 
 2) The Parser:
 
-The parser parses the tokens obtained from the scanner using Bison to construct the Abstract Syntax Tree (AST). Here is where we define what makes up an expr, a statement, a function definition/call, etc. The AST is constructed in such a way that the program executes in the proper order.
+The parser parses the tokens obtained from the scanner using Bison to construct the Abstract Syntax Tree (AST). Here is where we define what makes up an EXPR, a STMT, a FUNCTION, etc. The AST is constructed in such a way that the program executes in the proper order.
 
 3) The Type-Checker:
 
-The type-checker confirms that the operations performed by the AST are all type-safe, otherwise it returns helpful error messages to aid in debugging. For example, in a for loop, the second expr must be a boolean condition or an expr that evaluates to one.
+The type-checker confirms that the operations performed by the AST are all type-safe, otherwise it returns helpful error messages to aid in debugging. For example, in a FOR LOOP, the second expr must be a boolean condition or an expr that evaluates to a boolean condition.
 
 4) The Assembly Generator:
 
