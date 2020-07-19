@@ -14,7 +14,7 @@ The parser parses the tokens obtained from the scanner using Bison to construct 
 
 3) The Type-Checker:
 
-The type-checker confirms that the operations performed by the AST are all type-safe, otherwise it returns helpful error messages to aid in debugging. For example, in a FOR LOOP, the second expr must evaluate to a BOOLEAN.
+The type-checker confirms that the operations performed by the AST are all type-safe, otherwise it returns helpful error messages to aid in debugging. For example, in a FOR LOOP, the second EXPR must evaluate to a BOOLEAN.
 
 4) The Assembly Generator:
 
